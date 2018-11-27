@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+encoding//src/main/java/processor/com/ncr/powerswitch/processor/FormatProcessor.java=UTF-8
+encoding//src/main/java/processor/com/ncr/powerswitch/processor/HSMProcessor.java=UTF-8
+encoding//src/main/java/processor/com/ncr/powerswitch/processor/PrintProcessor.java=UTF-8
+encoding//src/main/java/processor/com/ncr/powerswitch/processor/ProcessorIntf.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/B090.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMCommand.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMSocketClient.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/utils/FormatUtil.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/utils/PowerSwitchConstant.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/utils/StringUtil.java=UTF-8

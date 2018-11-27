@@ -1,0 +1,23 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans classpath:/org/springframework/beans/factory/xml/spring-beans-2.0.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <bean id="RestletComponent" class="org.restlet.Component" ></bean>
+    <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent"> 
+     	<constructor-arg index="0"> <ref bean="RestletComponent" /> </constructor-arg> 
+    </bean>
+  	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
+  	<bean id="print" class="com.ncr.powerswitch.processor.PrintProcessor"></bean>
+	<camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
+		<route id="echoPowerSwitch">
+			<from uri="restlet:/echo"/>
+			<process ref="echo"/>
+		</route>
+		<route id="postRequest">
+			<from uri="restlet:/requests/?restletMethods=POST"/>
+			<process ref="print"/>
+		</route>
+	</camelContext>
+</beans>
+  <!-- END SNIPPET: e1 -->
