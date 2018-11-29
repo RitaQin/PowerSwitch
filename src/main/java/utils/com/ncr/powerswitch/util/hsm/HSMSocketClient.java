@@ -6,10 +6,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.ncr.powerswitch.utils.StringUtil;
 
-import static com.ncr.powerswitch.utils.PowerSwitchConstant.HSM_TIMEOUT;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.HSM_TIME_OUT;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_CLIENT_CLOSE_ERROR_CODE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_SUCCESS_CODE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_TIMEOUT_ERROR_CODE;
@@ -24,6 +28,11 @@ import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_UNKNOWNHOST_E
  */
 
 public class HSMSocketClient {
+	
+	/**
+	 * Log4j记录日志的工具类
+	 */
+	private final static Log log = LogFactory.getLog(HSMSocketClient.class);
 
 	// 加密机IP地址
 	private static String host;
@@ -34,7 +43,7 @@ public class HSMSocketClient {
 	// 最大接包数量
 	private static int maxPacket = 1024;
 	// 加密机超时
-	private static int timeout = Integer.parseInt(HSM_TIMEOUT);
+	private static int timeout = Integer.parseInt(HSM_TIME_OUT);
 
 	private static Socket socket = null;
 
@@ -53,19 +62,20 @@ public class HSMSocketClient {
 
 	private static String newInstance(String host, int port, int timeout) {
 		if (isOpenClient) {
-			// TODO: Log socket initialization
+			log.info("TCP Socket initializing..");
 			try {
 				socket = new Socket(host, port);
 				socket.setSoTimeout(timeout);
+				log.info("Socket host: " + host + " port: " + port);
 				return SOCKET_SUCCESS_CODE;
 			} catch (UnknownHostException he) {
-				// TODO: Log exceptions and return error code
+				log.error("Socket initialization failed, unknown host exception, host: " + host);
 				return SOCKET_UNKNOWNHOST_ERROR_CODE;
 			} catch (SocketTimeoutException te) {
-				// TODO: Log exceptions and return error code
+				log.error("Socket timeout exception");
 				return SOCKET_TIMEOUT_ERROR_CODE;
 			} catch (IOException e) {
-				// TODO: Log exceptions and return error code
+				log.error("Socket unknown error occurred!");
 				return SOCKET_UNKNOWN_ERROR_CODE;
 			}
 		} else {
@@ -74,7 +84,7 @@ public class HSMSocketClient {
 	}
 	
 	// 执行加密机指令
-	public synchronized static String execute(HSMCommand command, boolean unpack) throws Exception {
+	public synchronized static String execute(HSMCommand command, boolean unpack, Map<String, String> inputMap) throws Exception {
 		if(!isOpenClient) {
 			return null; 
 		} if (socket == null) {
@@ -89,7 +99,7 @@ public class HSMSocketClient {
 		try {
 			// 封装报文消息
 			os = socket.getOutputStream();
-			String message = command.packageInputField(os);
+			String message = command.packageInputField(os, inputMap);
 			byte[] bytelst=StringUtil.ASCII_To_BCD(message.getBytes(),message.length());
 			os.write(bytelst);
 			os.flush();

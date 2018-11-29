@@ -12,9 +12,10 @@ public abstract class HSMCommand {
 	//错误码
 	protected int errorCode; 
 	protected Map<String, Object> vendorKeyMap; //厂商密钥配置表 
+	public StringBuffer commandBuffer = new StringBuffer(); 
 	
 	//封装消息报文并返回封装好的报文
-	abstract public String packageInputField(OutputStream os) throws Exception; 
+	abstract public String packageInputField(OutputStream os, Map<String, String> inputMap) throws Exception; 
 	
 	public int getErrorCode() {
 		return errorCode; 
@@ -27,5 +28,6 @@ public abstract class HSMCommand {
 	public void setVendorKeyMap(Map<String, Object> keyMap) {
 		this.vendorKeyMap = keyMap;
 	}
+
 
 }
