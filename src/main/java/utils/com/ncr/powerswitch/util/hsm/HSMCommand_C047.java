@@ -27,25 +27,27 @@ import com.ncr.powerswitch.utils.StringUtil;
 
 public class HSMCommand_C047 extends HSMCommand {
 	
-	public static String DEFAULT_USER_RESERVED_STR = "0000000000000000"; //默认用户保留字
-
+	private Map<String, String> inputMap; 
+	
+	public HSMCommand_C047(Map<String, String> inputMap) {
+		this.inputMap = inputMap;
+	}
+	
 	@Override
 	//封装命令消息报文
-	public String packageInputField(OutputStream os, Map<String, String> inputMap) throws Exception {
-		//读取用户保留字
-		String userReservedStr = inputMap.get("R1") != null ? inputMap.get("R1").toString() : DEFAULT_USER_RESERVED_STR; 
+	public String packageInputField() throws Exception {
 		//加密机命令
 		commandBuffer.append("C047"); 
 		//用户保留字
-		commandBuffer.append(userReservedStr);
+		commandBuffer.append(inputMap.get("userReservedStr"));
 		//索引
 		commandBuffer.append("FFFF");
 		//公钥编码方式
 		commandBuffer.append("01");
 		//厂商公钥长度
-		commandBuffer.append(StringUtil.tentoSixteen(inputMap.get("MANUPKLENGTH").toString(),4));
+		commandBuffer.append(StringUtil.tentoSixteen(inputMap.get("MANUPKLENGTH").toString(), 4));
 		//公钥长度
-		commandBuffer.append(inputMap.get("MANUPK").toString().trim());
+		commandBuffer.append(inputMap.get("MANUPK").toString());
 		//Hash 方式 0：SHA1   1：MD5
 		commandBuffer.append("00");
 		//数据长度

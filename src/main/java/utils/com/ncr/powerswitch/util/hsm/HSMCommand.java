@@ -15,7 +15,7 @@ public abstract class HSMCommand {
 	public StringBuffer commandBuffer = new StringBuffer(); 
 	
 	//封装消息报文并返回封装好的报文
-	abstract public String packageInputField(OutputStream os, Map<String, String> inputMap) throws Exception; 
+	abstract public String packageInputField() throws Exception; 
 	
 	public int getErrorCode() {
 		return errorCode; 

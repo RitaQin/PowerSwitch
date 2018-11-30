@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.ncr.powerswitch.utils.StringUtil;
 
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.HSM_TIME_OUT;
@@ -19,6 +18,8 @@ import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_SUCCESS_CODE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_TIMEOUT_ERROR_CODE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_UNKNOWN_ERROR_CODE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_UNKNOWNHOST_ERROR_CODE;
+import static com.ncr.powerswitch.utils.ResourcesTool.IL8N_RESOURCES_DEFAULT;
+import static com.ncr.powerswitch.utils.ResourcesTool.getText;
 
 /**
  * 建立与加密机连接辅助类
@@ -28,86 +29,96 @@ import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_UNKNOWNHOST_E
  */
 
 public class HSMSocketClient {
-	
-	/**
-	 * Log4j记录日志的工具类
-	 */
+
 	private final static Log log = LogFactory.getLog(HSMSocketClient.class);
 
-	// 加密机IP地址
-	private static String host;
-	// 加密机端口
-	private static int port;
-	// 客户端开启状态
+	/**
+	 * 是否打开客户端
+	 */
 	private static boolean isOpenClient = true;
-	// 最大接包数量
+	/**
+	 * socket服务器IP
+	 */
+	private static String serverIp = null;
+
+	/**
+	 * socket服务器端口号
+	 */
+	private static int serverPort = 0;
+	/**
+	 * 接包最大值
+	 */
 	private static int maxPacket = 1024;
-	// 加密机超时
-	private static int timeout = Integer.parseInt(HSM_TIME_OUT);
 
-	private static Socket socket = null;
+	private static int timeout = Integer.parseInt(getText(IL8N_RESOURCES_DEFAULT, HSM_TIME_OUT)) * 1000;// SOCKET超时时间，默认为20秒
+	// private static int timeout =1;
+	private static Socket socket;
 
-	private HSMSocketClient(String host_, int port_, boolean isOpenClient_, int maxPacket_) {
-		host = host_;
-		port = port_;
+	private HSMSocketClient(String serverIp_,int serverPort_,boolean isOpenClient_,int maxPacket_) {
+		serverIp = serverIp_;
+		serverPort = serverPort_;
 		isOpenClient = isOpenClient_;
 		maxPacket = maxPacket_;
-		if (socket == null) {
-			String socketResCode = newInstance(host, port, timeout);
-			if (socketResCode != null && !socketResCode.equals(SOCKET_SUCCESS_CODE)) {
+		if(socket == null){
+			String result = newInstance(serverIp,serverPort,timeout);
+			if(result!=null&&!result.equals(SOCKET_SUCCESS_CODE)){
 				socket = null;
 			}
 		}
 	}
 
-	private static String newInstance(String host, int port, int timeout) {
+	private static String newInstance(String serverIp, int serverPort, int timeout) {
 		if (isOpenClient) {
-			log.info("TCP Socket initializing..");
+			log.debug("init socket client....");
+			log.debug("socket server ip:" + serverIp);
+			log.debug("socket server port:" + serverPort);
 			try {
-				socket = new Socket(host, port);
-				socket.setSoTimeout(timeout);
-				log.info("Socket host: " + host + " port: " + port);
+				socket = new Socket(serverIp, serverPort);
+				log.debug("init socket client success.");
 				return SOCKET_SUCCESS_CODE;
-			} catch (UnknownHostException he) {
-				log.error("Socket initialization failed, unknown host exception, host: " + host);
+			} catch (UnknownHostException e) {
+				log.error("init socket client error,message is " + e.getMessage() + ".");
 				return SOCKET_UNKNOWNHOST_ERROR_CODE;
-			} catch (SocketTimeoutException te) {
-				log.error("Socket timeout exception");
+			} catch (SocketTimeoutException e) {
+				log.error("init socket client error,message is " + e.getMessage() + ".");
 				return SOCKET_TIMEOUT_ERROR_CODE;
 			} catch (IOException e) {
-				log.error("Socket unknown error occurred!");
+				log.error("init socket client error,message is " + e.getMessage() + ".");
 				return SOCKET_UNKNOWN_ERROR_CODE;
 			}
 		} else {
+			log.error("jdbc.properties,socket.client.open = false. ");
 			return SOCKET_CLIENT_CLOSE_ERROR_CODE;
 		}
 	}
-	
-	// 执行加密机指令
-	public synchronized static String execute(HSMCommand command, boolean unpack, Map<String, String> inputMap) throws Exception {
-		if(!isOpenClient) {
-			return null; 
-		} if (socket == null) {
-			String newIns = newInstance(host, port, timeout); 
-			if (newIns != null && !newIns.equals(SOCKET_SUCCESS_CODE)) {
-				return newIns;
+
+	/**
+	 * 发包和接报
+	 * 
+	 * @param packetContent
+	 * @return
+	 */
+	public synchronized static String sendAndReceivePacket(String msg, String ip, String port, boolean unpack) {
+		if (!isOpenClient) {
+			return null;
+		}
+		if (socket == null) {
+			String result = newInstance(ip, Integer.parseInt(port), timeout);
+			if (result != null && !result.equals(SOCKET_SUCCESS_CODE)) {
+				return result;
 			}
 		}
-		
-		OutputStream os = null;
-		InputStream is = null;
+		InputStream inputStream = null;
+		OutputStream outputStream = null;
 		try {
-			// 封装报文消息
-			os = socket.getOutputStream();
-			String message = command.packageInputField(os, inputMap);
-			byte[] bytelst=StringUtil.ASCII_To_BCD(message.getBytes(),message.length());
-			os.write(bytelst);
-			os.flush();
+			outputStream = socket.getOutputStream();
+			byte[] bytelst = StringUtil.ASCII_To_BCD(msg.getBytes(), msg.length());
+			outputStream.write(bytelst);
+			outputStream.flush();
 
-			// 从加密机端接收响应消息
-			is = socket.getInputStream();
+			inputStream = socket.getInputStream();
 			byte[] bytes = new byte[maxPacket];
-			int n = is.read(bytes);
+			int n = inputStream.read(bytes);
 			if (!unpack) {
 				return StringUtil.bcd2Str(bytes, n);
 			} else {
@@ -122,34 +133,45 @@ public class HSMSocketClient {
 					}
 				}
 			}
+		} catch (IOException e) {
+			log.error("socket client receive packet error, message is" + e.getMessage() + ".");
 		} finally {
-			// 切断连接
-			try {
-				if (os != null) {
-					os.close();
-					os = null;
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error(
+							"socket client receive packet,InputStream close error, message is" + e.getMessage() + ".");
 				}
-				if (is != null) {
-					is.close();
-					is = null;
+			}
+			if (outputStream != null) {
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+					log.error(
+							"socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
 				}
-				if (socket != null) {
+			}
+			if (socket != null) {
+				try {
 					socket.close();
 					socket = null;
+					// if(socket == null){
+					// newInstance(serverIp,serverPort,timeout);
+					// }
+				} catch (IOException e) {
+					log.error("socket client receive packet,socket close error, message is" + e.getMessage() + ".");
 				}
-			} catch (Exception ex) {
-				// TODO: Log exceptions and return error code
 			}
 		}
 		return SOCKET_UNKNOWN_ERROR_CODE;
 	}
 
-	public static String getHost() {
-		return host;
+	public static String getServerIp() {
+		return serverIp;
 	}
 
-	public static int getPort() {
-		return port;
+	public static int getServerPort() {
+		return serverPort;
 	}
-
 }
