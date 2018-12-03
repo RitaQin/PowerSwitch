@@ -542,7 +542,7 @@ public class RKLProcessor implements Processor {
 					return;
 				}
 			}
-			
+
 			// 如果密文转加密成功，执行密文签名(C046)
 			if (signVerified) {
 				Map<String, String> inputMap = new HashMap<String, String>();
@@ -638,7 +638,7 @@ public class RKLProcessor implements Processor {
 					return;
 				}
 			}
-			
+
 			try {
 				if (mapmf.get("BANKPKSIGNATURE") == null
 						|| mapmf.get("BANKPKSIGNATURE").toString().trim().length() != 540) {
@@ -686,7 +686,7 @@ public class RKLProcessor implements Processor {
 				exchange.getOut().setBody(errorMsg);
 				return;
 			}
-			//结束
+			// 结束
 		}
 	}
 
