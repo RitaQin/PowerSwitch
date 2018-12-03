@@ -1,7 +1,5 @@
 package com.ncr.powerswitch.hsm;
 
-
-import java.io.OutputStream;
 import java.util.Map;
 
 import com.ncr.powerswitch.utils.StringUtil;

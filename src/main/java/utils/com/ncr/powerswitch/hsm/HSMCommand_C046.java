@@ -1,7 +1,5 @@
 package com.ncr.powerswitch.hsm;
 
-
-
 import java.util.Map;
 import com.ncr.powerswitch.utils.StringUtil;
 
@@ -34,7 +32,7 @@ public class HSMCommand_C046 extends HSMCommand {
 	public String packageInputField() throws Exception {
 		// 命令
 		commandBuffer.append("C046");
-		 // 用户保留字
+		// 用户保留字
 		commandBuffer.append("userReservedStr");
 		// 索引
 		commandBuffer.append("FFFF");
@@ -57,6 +55,4 @@ public class HSMCommand_C046 extends HSMCommand {
 
 		return commandBuffer.toString();
 	}
-	
-
 }

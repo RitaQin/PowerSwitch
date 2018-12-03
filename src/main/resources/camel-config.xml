@@ -3,12 +3,22 @@
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans classpath:/org/springframework/beans/factory/xml/spring-beans-2.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <!-- 设置atmp接收请求的URL -->
     <bean id="RestletComponent" class="org.restlet.Component" ></bean>
     <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent"> 
      	<constructor-arg index="0"> <ref bean="RestletComponent" /> </constructor-arg> 
     </bean>
+    <!-- 测试用 -->
   	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
   	<bean id="print" class="com.ncr.powerswitch.processor.PrintProcessor"></bean>
+  	<!-- 数据库数据源 -->
+  	<bean id="defaultDS" class="com.ncr.powerswitch.jdbc.BaseDataSource">
+  		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
+        <property name="username" value="system"/>
+        <property name="password" value="NCR0racle"/>
+  	</bean>
+  	<!-- 业务处理 -->
   	<bean id="pre-action" class=" com.ncr.powerswitch.processor.PreActionProcessor"></bean>
   	<bean id="rkl-processor" class="com.ncr.powerswitch.processor.RKLProcessor"></bean>
 	<camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">

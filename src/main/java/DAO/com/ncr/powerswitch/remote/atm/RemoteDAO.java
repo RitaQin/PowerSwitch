@@ -10,7 +10,6 @@ import java.util.Map;
  */
 public interface RemoteDAO {
 	
-	
 	/**
 	 * 验证终端号是否有效
 	 * 
@@ -20,7 +19,6 @@ public interface RemoteDAO {
 	 */
 	int terminalIDIsValid(String IP,String strTerminalID);
 	
-	
 	/**
 	 * 查询ATM厂商名
 	 * @param IP IP地址
@@ -29,15 +27,11 @@ public interface RemoteDAO {
 	 */
 	Map<String,Object> findManufacturerByIPAndTerminalID(String IP,String strTerminalID);
 	
-	
-	
 	/**
 	 * 获取加密机配置参数（IP地址，端口号）
 	 * @return 加密机配置参数
 	 */
 	Map findHSMSETAll();
-	
-	
 	
 	/**
 	 * 验证终端号和批次是否有效
@@ -49,16 +43,6 @@ public interface RemoteDAO {
 	boolean batchIsValid(String strTerminalID,String strBatch);
 	
 	/**
-	 * 根据终端号查询电子流水
-	 * @param strTerminalID 终端号
-	 * @param ip IP地址
-	 * @param strAreaCode 地区号
-	 * @return
-	 */
-	Map<String,Object> findEJSignInByStrTerminalID(String strTerminalID,String ip,String strAreaCode);
-	
-	
-	/**
 	 * 初始化新增一台终端机签到记录
 	 * @param strTerminalID 终端号
 	 * @param ip IP地址
@@ -66,7 +50,6 @@ public interface RemoteDAO {
 	 * @return 1：成功 0：失败
 	 */
 	int addEJLogon(String strTerminalID,String ip,String strAreaCode);
-	
 	
 	/**
 	 * 更新终端机最后上传时间和行号
@@ -77,18 +60,6 @@ public interface RemoteDAO {
 	 * @return 1：成功 0：失败
 	 */
 	int updateEJLogon(String strTerminalID,String ip,String strDate,String lastLine);
-	
-	
-	/**
-	 * 电子流水上传
-	 * @param strTerminalID 终端号
-	 * @param ip IP地址
-	 * @param strAreaCode 地区号
-	 * @param Record 流水内容
-	 * @return 1：成功 0：失败
-	 */
-	int addEJData(String strTerminalID,String ip,String strAreaCode,String Record);
-	
 	
 	/**
 	 * 参数版本号查询
@@ -117,32 +88,6 @@ public interface RemoteDAO {
 	 */
 	Map<String,Object> findParameTextByStrTerminalIDAndStrAreaAndParameType(String strTerminalID,String ip,String strArea,String parameType);
 	
-	
-	/**
-	 * 查询冠字码数据
-	 * @param strTerminalID 端机号
-	 * @param ip IP地址
-	 * @param strTransInfo  待定
-	 * @return 1:数据已存在，不用上传  0：数据不存在，需要上传
-	 */
-	int findNotesInfoByStrTerminalIDAndStrTransInfo(String strTerminalID,String ip,String strTransInfo);
-	
-	/**
-	 * 冠字码上传
-	 * @param strTerminalID 终端号
-	 * @param ip IP地址
-	 * @param pan 账号
-	 * @param traceNo 交易序列号
-	 * @param dateTime 交易日期时间
-	 * @param traceType 交易类型
-	 * @param traceResult 交易结果
-	 * @param noteSN 钞票识别序列号
-	 * @param rejectSN 可疑序列号
-	 * @return true：上传成功  false：上传失败
-	 */
-	boolean addNotesInfo(String strTerminalID,String ip,String pan,String traceNo,String dateTime,String traceType,String traceResult,String noteSN,String rejectSN);
-	
-	
 	/**
 	 * 通过加密机返回的数据密钥，密钥校验码，更新到ATM
 	 * @param strTerminalID 端机号
@@ -152,7 +97,6 @@ public interface RemoteDAO {
 	 * @return
 	 */
 	boolean updateATMKEY(String strTerminalID,String ip,String keyText,String keyCheck);
-	
 	
 	/**
 	 * 按端机号IP查询ATM数据
