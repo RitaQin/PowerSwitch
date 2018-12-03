@@ -8,7 +8,6 @@ import com.ncr.powerswitch.utils.StringUtil;
 
 /***
  * 
- * 发送命名<0XC047> 
  * 验证签名 命令：0xC047 
  * 用户保留字：数据库读取，暂默认为16 个 0
  * 区域主密钥索引号 ：数据库读取，或默认16位"0"

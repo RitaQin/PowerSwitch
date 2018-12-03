@@ -2,7 +2,6 @@ package com.ncr.powerswitch.processor;
 
 import static com.ncr.powerswitch.utils.ResourcesTool.IL8N_REMOTEKEYLOAD_DEFAULT;
 import static com.ncr.powerswitch.utils.ResourcesTool.IL8N_RESOURCES_DEFAULT;
-import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_DEBUG_PARAM_LOG;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.GLOBAL_ERROR_CODE_PARAMS_NOT_NULL;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.GLOBAL_ERROR_CODE_TERMINAL_ID_INVALID;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.GLOBAL_ERROR_CODE_TERMID_ILLEGAL;
@@ -21,7 +20,13 @@ import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_CLIENT_CLOSE_
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_UNKNOWN_ERROR_CODE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_INFO_CODE_VAL_SIGN_FALSE;
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.GLOBAL_ERROR_CODE_SOCKET_ERROR;
-
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.GLOBAL_INFO_CODE_UPDATE_ATM_KEY_FALSE;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_ERROR_ATM_PK_DATA;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_ERROR_SK__DATA;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_ERROR_BANK_PK_DATA;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.REMOTEKEYLOAD_ERROR_BANK_PK_MANU_SIGN_DATA;
 
 import static com.ncr.powerswitch.utils.PowerSwitchConstant.VAL_OPEN;
 import static com.ncr.powerswitch.utils.ResourcesTool.getText;
@@ -40,9 +45,12 @@ import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.LogUtil;
 import com.ncr.powerswitch.utils.ReturnMsgUtil;
 import com.ncr.powerswitch.utils.StringUtil;
-import com.ncr.powerswitch.util.hsm.HSMCommand;
-import com.ncr.powerswitch.util.hsm.HSMCommand_C047;
 
+import com.ncr.powerswitch.util.hsm.HSMCommand;
+import com.ncr.powerswitch.util.hsm.HSMCommand_C046;
+import com.ncr.powerswitch.util.hsm.HSMCommand_C047;
+import com.ncr.powerswitch.util.hsm.HSMCommand_C049;
+import com.ncr.powerswitch.util.hsm.HSMCommand_D106;
 import com.ncr.powerswitch.remote.atm.RemoteDAO;
 
 /***
@@ -82,6 +90,7 @@ public class RKLProcessor implements Processor {
 
 		String msg = exchange.getIn(String.class);
 		Map<String, Object> requestMap = FormatUtil.json2Map(msg);
+		log.info("RKL PROCESSING : request msg: " + msg);
 
 		// 从请求报文中提取远程密钥下载所需参数
 		String ip = requestMap.get("ip") != null ? requestMap.get("ip").toString() : null; // IP地址
@@ -105,7 +114,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, getText(
 					IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, new Object[] { "strTerminalID" }));
-			exchange.getIn().setBody(errorMsg); // 将错误信息放入上下文中
+			exchange.getOut().setBody(errorMsg); // 将错误信息放入上下文中
 			return;
 		}
 		// 验证终端号长度范围
@@ -113,7 +122,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_TERMINAL_ID_INVALID, getText(
 					IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_TERMINAL_ID_INVALID, new Object[] { "strTerminalID" }));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证端机号合法性
@@ -121,7 +130,7 @@ public class RKLProcessor implements Processor {
 			String result = valTermIDAndIp(strTerminalID, ip, IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_TERMID_ILLEGAL,
 					GLOBAL_ERROR_CODE_TERMID_IP_FALSE);
 			if (result != null) {
-				exchange.getIn().setBody(result);
+				exchange.getOut().setBody(errorMsg);
 				return;
 			}
 		}
@@ -130,7 +139,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_PARAMS_NOT_NULL,
 					getText(IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, new Object[] { "strBatch" }));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证EPP序列号是否为空
@@ -138,7 +147,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, getText(
 					IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, new Object[] { "strEppSerialNo" }));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证存储在EPP里面的银行公钥是否为空
@@ -146,7 +155,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, getText(
 					IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, new Object[] { "strEppPublicKey" }));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证存储在EPP里面的银行公钥签名是否为空
@@ -154,7 +163,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, getText(
 					IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, new Object[] { "strEppPublicKeySign" }));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证存储在EPP里面的银行公钥长度
@@ -162,7 +171,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_PK_DATA_ILLEGAL,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_PK_DATA_ILLEGAL));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证存储在EPP里面的银行公钥长度
@@ -170,7 +179,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_SIGN_DATA_ILLEGAL,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_SIGN_DATA_ILLEGAL));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 验证参数有效性结束......
@@ -180,13 +189,13 @@ public class RKLProcessor implements Processor {
 			// TODO: 日志记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_UPTATE_EPPID,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_UPTATE_EPPID));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		} else if (cnt == 99) {
 			// TODO: 日志记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_EPPID_COMPARE_FALSE,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_EPPID_COMPARE_FALSE));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 获取加密机的配置参数
@@ -202,7 +211,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 日志记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_CODE_HSMSET_ERROR,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_CODE_HSMSET_ERROR));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 加密机配置参数获取失败参数
@@ -210,13 +219,13 @@ public class RKLProcessor implements Processor {
 			// TODO: 日志记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_CODE_HSMSET_ERROR,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_CODE_HSMSET_ERROR));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		} else if (StringUtil.isNull(mapHsm.get("IP").toString()) || StringUtil.isNull(mapHsm.get("PORT").toString())) {
 			// TODO: 日志记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_CODE_HSMSET_ERROR,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_CODE_HSMSET_ERROR));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
 		}
 		// 获取加密机配置参数
@@ -249,7 +258,7 @@ public class RKLProcessor implements Processor {
 					// TODO:记录错误
 					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_MANU_PK_DATA_LENGTH,
 							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_MANU_PK_DATA_LENGTH));
-					exchange.getIn().setBody(errorMsg);
+					exchange.getOut().setBody(errorMsg);
 					return;
 				}
 				// 验证厂商公钥
@@ -259,14 +268,14 @@ public class RKLProcessor implements Processor {
 					// TODO:记录错误
 					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_MANU_PK_DATA,
 							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_MANU_PK_DATA));
-					exchange.getIn().setBody(errorMsg);
+					exchange.getOut().setBody(errorMsg);
 					return;
 				}
-				//封装命令报文
-				HSMCommand c047 = new HSMCommand_C047(inputMap); 
-				String hsmMsg = c047.packageInputField(); 
+				// 封装命令报文
+				HSMCommand c047 = new HSMCommand_C047(inputMap);
+				String c047Msg = c047.packageInputField();
 				try {
-					rtmsg = HSMSocketClient.sendAndReceivePacket(hsmMsg, ip_hsm, port_hsm, false);
+					rtmsg = HSMSocketClient.sendAndReceivePacket(c047Msg.trim(), ip_hsm, port_hsm, false);
 					// TODO:记录错误
 					// log(LogLevel.INFO,"命令："+msgfmt.toString().trim()+",加密机返回数据："+rtmsg);
 					if (rtmsg != null) {
@@ -283,7 +292,7 @@ public class RKLProcessor implements Processor {
 							// SOCKET_TIMEOUT_ERROR_CODE));
 							errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_TIMEOUT_ERROR_CODE,
 									getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_TIMEOUT_ERROR_CODE));
-							exchange.getIn().setBody(errorMsg);
+							exchange.getOut().setBody(errorMsg);
 							return;
 						} else if (rtmsg.equals(SOCKET_UNKNOWNHOST_ERROR_CODE)) {
 							// TODO:记录错误
@@ -291,7 +300,7 @@ public class RKLProcessor implements Processor {
 							// SOCKET_UNKNOWNHOST_ERROR_CODE));
 							errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWNHOST_ERROR_CODE,
 									getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWNHOST_ERROR_CODE));
-							exchange.getIn().setBody(errorMsg);
+							exchange.getOut().setBody(errorMsg);
 							return;
 						} else if (rtmsg.equals(SOCKET_CLIENT_CLOSE_ERROR_CODE)) {
 							// TODO:记录错误
@@ -299,7 +308,7 @@ public class RKLProcessor implements Processor {
 							// SOCKET_CLIENT_CLOSE_ERROR_CODE));
 							errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_CLIENT_CLOSE_ERROR_CODE,
 									getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_CLIENT_CLOSE_ERROR_CODE));
-							exchange.getIn().setBody(errorMsg);
+							exchange.getOut().setBody(errorMsg);
 							return;
 						} else if (rtmsg.equals(SOCKET_UNKNOWN_ERROR_CODE)) {
 							// TODO:记录错误
@@ -307,7 +316,7 @@ public class RKLProcessor implements Processor {
 							// SOCKET_UNKNOWN_ERROR_CODE));
 							errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWN_ERROR_CODE,
 									getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWN_ERROR_CODE));
-							exchange.getIn().setBody(errorMsg);
+							exchange.getOut().setBody(errorMsg);
 							return;
 						} else {
 							// 验证签名失败
@@ -316,7 +325,7 @@ public class RKLProcessor implements Processor {
 							// REMOTEKEYLOAD_INFO_CODE_VAL_SIGN_FALSE));
 							errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_INFO_CODE_VAL_SIGN_FALSE,
 									getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_INFO_CODE_VAL_SIGN_FALSE));
-							exchange.getIn().setBody(errorMsg);
+							exchange.getOut().setBody(errorMsg);
 							return;
 						}
 					}
@@ -328,7 +337,7 @@ public class RKLProcessor implements Processor {
 					// GLOBAL_ERROR_CODE_SOCKET_ERROR));
 					errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_SOCKET_ERROR,
 							getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_ERROR_CODE_SOCKET_ERROR));
-					exchange.getIn().setBody(errorMsg);
+					exchange.getOut().setBody(errorMsg);
 					return;
 				}
 
@@ -337,7 +346,7 @@ public class RKLProcessor implements Processor {
 				// REMOTEKEYLOAD_ERROR_CODE_HSM_DATA_ERROR));
 				errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_CODE_HSM_DATA_ERROR,
 						getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_CODE_HSM_DATA_ERROR));
-				exchange.getIn().setBody(errorMsg);
+				exchange.getOut().setBody(errorMsg);
 				return;
 			}
 		} catch (Exception e1) {
@@ -348,10 +357,337 @@ public class RKLProcessor implements Processor {
 			// REMOTEKEYLOAD_ERROR_CODE_HSM_DATA_ERROR));
 			errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_CODE_HSM_DATA_ERROR,
 					getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_CODE_HSM_DATA_ERROR));
-			exchange.getIn().setBody(errorMsg);
+			exchange.getOut().setBody(errorMsg);
 			return;
-		}
+		} // C047命令发送结束
 
+		// 如果签名验证成功，产生随机工作密钥(D106)
+		if (signVerified) {
+			signVerified = false;
+			HSMCommand d106 = new HSMCommand_D106();
+			String d106Msg = d106.packageInputField();
+			try {
+				// 开始通信加密机
+				rtmsg = HSMSocketClient.sendAndReceivePacket(d106Msg.trim(), ip_hsm, port_hsm, false);
+				// TODO: 记录发送命令
+				// log(LogLevel.INFO,"命令："+command.trim()+",加密机返回数据："+rtmsg);
+				// 返回有效数据，定长 52(除错误外),前两位为应答码 41：正确 45：错误
+				if (rtmsg != null) {
+					if (rtmsg.length() == 52 && rtmsg.substring(0, 2).equals("41")) {
+						// 加密机返回正确数据,并获取 数据密钥（32位），数据密钥校验码（16位）
+						// TODO: 记录错误
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_SUCCESS));
+						String keyText = rtmsg.substring(4, 36);// 获取数据密钥
+						String keyCheck = rtmsg.substring(36, 52);// 获取数据密钥校验码
+						// 将数据密钥与数据密钥校验码更新到ATM
+						if (remoteDao.updateATMKEY(strTerminalID, ip, keyText, keyCheck)) {
+							resultMap.put("keyCheck", keyCheck);
+							// 更新成功
+							// TODO: 记录错误
+							// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+							// GLOBAL_INFO_CODE_UPDATE_ATM_KEY_SUCCESS));
+							signVerified = true;
+						} else {
+							// 更新失败
+							// TODO: 记录错误
+							// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+							// GLOBAL_INFO_CODE_UPDATE_ATM_KEY_FALSE));
+							errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_INFO_CODE_UPDATE_ATM_KEY_FALSE,
+									getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_INFO_CODE_UPDATE_ATM_KEY_FALSE));
+							exchange.getOut().setBody(errorMsg);
+							return;
+						}
+					} else if (rtmsg.equals(SOCKET_TIMEOUT_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_TIMEOUT_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_TIMEOUT_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_TIMEOUT_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_UNKNOWNHOST_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_UNKNOWNHOST_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWNHOST_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWNHOST_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_CLIENT_CLOSE_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_CLIENT_CLOSE_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_CLIENT_CLOSE_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_CLIENT_CLOSE_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_UNKNOWN_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_UNKNOWN_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWN_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWN_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else {
+						// 加密机返回错误数据
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					}
+				} else {
+					// 加密机返回错误数据
+					// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				}
+			} catch (Exception e) {
+				// 通信异常
+				e.printStackTrace();
+				// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+				// GLOBAL_ERROR_CODE_SOCKET_ERROR));
+				errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_SOCKET_ERROR,
+						getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_ERROR_CODE_SOCKET_ERROR));
+				exchange.getOut().setBody(errorMsg);
+				return;
+			}
+			// D106命令发送结束
+
+			// 开始转加密KEY(C049)
+			if (signVerified) {
+				Map<String, String> inputMap = new HashMap<String, String>();
+				if (mapmf.get("R1") != null && mapmf.get("R1").toString().length() == 16) {
+					inputMap.put("userReservedStr", mapmf.get("R1").toString());// 用户保留字
+				} else {
+					inputMap.put("userReservedStr", DEFAULT_USER_RESERVED_STR);// 用户保留字，暂用16位"0"
+				}
+				Map<String, Object> terminalMap = remoteDao.findSysTermByTermIdAndIP(strTerminalID, ip_hsm);
+				if (terminalMap.get("KEY_TEXT") != null
+						&& terminalMap.get("KEY_TEXT").toString().trim().length() == 32) {
+					inputMap.put("KEY_TEXT", terminalMap.get("KEY_TEXT").toString().trim());// KEY
+				} else {
+					// TODO:记录错误
+					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// REMOTEKEYLOAD_ERROR_ATM_PK_DATA));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_ATM_PK_DATA,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_ATM_PK_DATA));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				}
+				HSMCommand c049 = new HSMCommand_C049(inputMap);
+				String c049Msg = c049.packageInputField();
+				// 开始通信
+				try {
+					rtmsg = HSMSocketClient.sendAndReceivePacket(c049Msg.trim(), ip_hsm, port_hsm, false);
+					// TODO:记录错误
+					// log(LogLevel.INFO, "命令：" + c049Msg.toString().trim() + ",加密机返回数据：" + rtmsg);
+					if (rtmsg != null && rtmsg.substring(0, 2).equals("41")) {
+						// 保存转加密密文数据
+						resultMap.put("encryption", rtmsg.substring(22, rtmsg.length()));
+						signVerified = true;
+					} else if (rtmsg.equals(SOCKET_TIMEOUT_ERROR_CODE)) {
+						// TODO:记录错误
+						// log(LogLevel.INFO, getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_TIMEOUT_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_TIMEOUT_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_TIMEOUT_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_UNKNOWNHOST_ERROR_CODE)) {
+						// TODO:记录错误
+						// log(LogLevel.INFO, getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_UNKNOWNHOST_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWNHOST_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWNHOST_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_CLIENT_CLOSE_ERROR_CODE)) {
+						// TODO:记录错误
+						// log(LogLevel.INFO, getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_CLIENT_CLOSE_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_CLIENT_CLOSE_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_CLIENT_CLOSE_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_UNKNOWN_ERROR_CODE)) {
+						// TODO:记录错误
+						// log(LogLevel.INFO, getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_UNKNOWN_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWN_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWN_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else {
+						// 加密机返回错误数据
+						// TODO:记录错误
+						// log(LogLevel.INFO, getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					}
+
+				} catch (Exception e) {
+					// 通信异常
+					// TODO:记录错误
+					// log(LogLevel.ERROR, getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// GLOBAL_ERROR_CODE_SOCKET_ERROR));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_SOCKET_ERROR,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_ERROR_CODE_SOCKET_ERROR));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				}
+			}
+			
+			// 如果密文转加密成功，执行密文签名(C046)
+			if (signVerified) {
+				Map<String, String> inputMap = new HashMap<String, String>();
+				if (mapmf.get("R1") != null && mapmf.get("R1").toString().length() == 16) {
+					inputMap.put("userReservedStr", mapmf.get("R1").toString());// 用户保留字
+				} else {
+					inputMap.put("userReservedStr", DEFAULT_USER_RESERVED_STR);// 用户保留字，暂用16位"0"
+				}
+				if (mapmf.get("SKLENGTH") != null) {
+					inputMap.put("SKLENGTH", mapmf.get("SKLENGTH").toString());// 私钥长度
+				} else {
+					// TODO:记录错误
+					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				}
+				if (mapmf.get("SK") != null) {
+					inputMap.put("SK", mapmf.get("SK").toString());// 私钥
+				} else {
+					// TODO:记录错误
+					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// REMOTEKEYLOAD_ERROR_SK__DATA));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_SK__DATA,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_SK__DATA));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				}
+				inputMap.put("encryption", resultMap.get("encryption").toString());
+				HSMCommand c046 = new HSMCommand_C046(inputMap);
+				String c046Msg = c046.packageInputField();
+				// 开始通信
+				try {
+					rtmsg = HSMSocketClient.sendAndReceivePacket(c046Msg, ip_hsm, port_hsm, false);
+					// TODO:记录错误
+					// log(LogLevel.INFO,"命令："+msgfmt.toString().trim()+",加密机返回数据："+rtmsg);
+					if (rtmsg != null && rtmsg.substring(0, 2).equals("41")) {
+						// 保存转加密密文数据
+						// TODO:记录错误
+						// log(LogLevel.INFO,"命令："+msgfmt.toString().trim()+",返回数据："+rtmsg);
+						resultMap.put("encryptionSignature", rtmsg.substring(22, rtmsg.length()));
+					} else if (rtmsg.equals(SOCKET_TIMEOUT_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_TIMEOUT_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_TIMEOUT_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_TIMEOUT_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_UNKNOWNHOST_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_UNKNOWNHOST_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWNHOST_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWNHOST_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_CLIENT_CLOSE_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_CLIENT_CLOSE_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_CLIENT_CLOSE_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_CLIENT_CLOSE_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else if (rtmsg.equals(SOCKET_UNKNOWN_ERROR_CODE)) {
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// SOCKET_UNKNOWN_ERROR_CODE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(SOCKET_UNKNOWN_ERROR_CODE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, SOCKET_UNKNOWN_ERROR_CODE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					} else {
+						// 加密机返回错误数据
+						// log(LogLevel.INFO,"命令："+msgfmt.toString().trim()+",返回数据："+rtmsg);
+						// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+						// GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+						errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE,
+								getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+						exchange.getOut().setBody(errorMsg);
+						return;
+					}
+
+				} catch (Exception e) {
+					// 通信异常
+					e.printStackTrace();
+					// log(LogLevel.INFO,"命令："+msgfmt.toString().trim()+",加密机返回数据："+rtmsg+",异常信息："+e.getMessage()+"======="+e.getStackTrace());
+					// log(LogLevel.INFO,"命令："+msgfmt.toString().trim()+",返回数据："+rtmsg);
+					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// GLOBAL_ERROR_CODE_SOCKET_ERROR));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_SOCKET_ERROR,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_ERROR_CODE_SOCKET_ERROR));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				}
+			}
+			
+			try {
+				if (mapmf.get("BANKPKSIGNATURE") == null
+						|| mapmf.get("BANKPKSIGNATURE").toString().trim().length() != 540) {
+
+					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// REMOTEKEYLOAD_ERROR_BANK_PK_DATA));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_BANK_PK_DATA,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_BANK_PK_DATA));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				} else if (mapmf.get("MANUSIGNATUREBANK") == null
+						|| mapmf.get("MANUSIGNATUREBANK").toString().trim().length() != 512) {
+					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+					// REMOTEKEYLOAD_ERROR_BANK_PK_MANU_SIGN_DATA));
+					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_BANK_PK_MANU_SIGN_DATA,
+							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_BANK_PK_MANU_SIGN_DATA));
+					exchange.getOut().setBody(errorMsg);
+					return;
+				} else {
+					// 创建返回的对象
+					Map<String, Object> mapatm = remoteDao.findSysTermByTermIdAndIP(strTerminalID, ip);
+					// 拼接返回字符串
+
+					/***
+					 * "MasterKeyCypher" 主密钥密文 "MasterKeyCypherSign" 主密钥密文签名 "BankPublicKey" 银行公钥
+					 * "BankPublicKeySign" 银行公钥厂商签 "MasterKeyCheckCode" KEY_CHECK
+					 */
+					Map<String, Object> returnMap = new HashMap<String, Object>();
+					returnMap.put("MasterKeyCypher", resultMap.get("encryption").toString().trim());
+					returnMap.put("MasterKeyCypherSign", resultMap.get("encryptionSignature").toString().trim());
+					returnMap.put("BankPublicKey", mapmf.get("BANKPKSIGNATURE").toString().trim());
+					returnMap.put("BankPublicKeySign", mapmf.get("MANUSIGNATUREBANK").toString().trim());
+					returnMap.put("MasterKeyCheckCode", mapatm.get("KEY_CHECK").toString().trim());
+
+					// 构造JSON并放入上下文
+					exchange.getIn().setBody(FormatUtil.map2Json(returnMap));
+					exchange.getIn().setHeader("HsmResponse", ReturnMsgUtil.generateSuccessMessage());
+				}
+			} catch (Exception e) {
+				// 加密机返回错误数据
+				// log(LogLevel.INFO,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
+				// GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+				errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE,
+						getText(IL8N_REMOTEKEYLOAD_DEFAULT, GLOBAL_INFO_CODE_SOCKET_RETURN_DATA_FALSE));
+				exchange.getOut().setBody(errorMsg);
+				return;
+			}
+			//结束
+		}
 	}
 
 	/**

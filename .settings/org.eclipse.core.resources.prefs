@@ -5,7 +5,10 @@ encoding//src/main/java/processor/com/ncr/powerswitch/processor/PrintProcessor.j
 encoding//src/main/java/processor/com/ncr/powerswitch/processor/ProcessorIntf.java=UTF-8
 encoding//src/main/java/processor/com/ncr/powerswitch/processor/RKLProcessor.java=UTF-8
 encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMCommand.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMCommand_C046.java=UTF-8
 encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMCommand_C047.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMCommand_C049.java=UTF-8
+encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMCommand_D106.java=UTF-8
 encoding//src/main/java/utils/com/ncr/powerswitch/util/hsm/HSMSocketClient.java=UTF-8
 encoding//src/main/java/utils/com/ncr/powerswitch/utils/FormatUtil.java=UTF-8
 encoding//src/main/java/utils/com/ncr/powerswitch/utils/LogUtil.java=UTF-8
