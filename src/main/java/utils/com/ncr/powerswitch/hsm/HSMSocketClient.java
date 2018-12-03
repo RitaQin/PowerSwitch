@@ -1,4 +1,4 @@
-package com.ncr.powerswitch.util.hsm;
+package com.ncr.powerswitch.hsm;
 
 import java.io.IOException;
 import java.io.InputStream;

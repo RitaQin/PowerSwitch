@@ -40,17 +40,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.lf5.LogLevel;
 
-import com.ncr.powerswitch.util.hsm.HSMSocketClient;
+import com.ncr.powerswitch.hsm.HSMSocketClient;
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.LogUtil;
 import com.ncr.powerswitch.utils.ReturnMsgUtil;
 import com.ncr.powerswitch.utils.StringUtil;
 
-import com.ncr.powerswitch.util.hsm.HSMCommand;
-import com.ncr.powerswitch.util.hsm.HSMCommand_C046;
-import com.ncr.powerswitch.util.hsm.HSMCommand_C047;
-import com.ncr.powerswitch.util.hsm.HSMCommand_C049;
-import com.ncr.powerswitch.util.hsm.HSMCommand_D106;
+import com.ncr.powerswitch.hsm.HSMCommand;
+import com.ncr.powerswitch.hsm.HSMCommand_C046;
+import com.ncr.powerswitch.hsm.HSMCommand_C047;
+import com.ncr.powerswitch.hsm.HSMCommand_C049;
+import com.ncr.powerswitch.hsm.HSMCommand_D106;
 import com.ncr.powerswitch.remote.atm.RemoteDAO;
 
 /***
@@ -114,7 +114,7 @@ public class RKLProcessor implements Processor {
 			// TODO: 记录错误
 			errorMsg = ReturnMsgUtil.generateErrorMessage(GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, getText(
 					IL8N_RESOURCES_DEFAULT, GLOBAL_ERROR_CODE_PARAMS_NOT_NULL, new Object[] { "strTerminalID" }));
-			exchange.getOut().setBody(errorMsg); // 将错误信息放入上下文中
+			exchange.getOut().setBody(errorMsg); // 将错误信息放入上下文中返回至终端
 			return;
 		}
 		// 验证终端号长度范围

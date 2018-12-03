@@ -9,6 +9,8 @@
     </bean>
   	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
   	<bean id="print" class="com.ncr.powerswitch.processor.PrintProcessor"></bean>
+  	<bean id="pre-action" class=" com.ncr.powerswitch.processor.PreActionProcessor"></bean>
+  	<bean id="rkl-processor" class="com.ncr.powerswitch.processor.RKLProcessor"></bean>
 	<camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
 		<route id="echoPowerSwitch">
 			<from uri="restlet:/echo"/>
@@ -16,6 +18,7 @@
 		</route>
 		<route id="postRequest">
 			<from uri="restlet:/requests/?restletMethods=POST"/>
+			<process ref="pre-action"/>
 			<process ref="print"/>
 		</route>
 	</camelContext>
