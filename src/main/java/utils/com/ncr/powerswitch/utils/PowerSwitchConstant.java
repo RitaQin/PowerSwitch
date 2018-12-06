@@ -12,7 +12,7 @@ public class PowerSwitchConstant {
 	public final static String VAL_OPEN = "bool";
 
 	// 设置加密机超时时间 单位：秒
-	public final static String HSM_TIME_OUT = "timeout";
+	public final static String HSM_TIME_OUT = "20";
 
 	// 全局的错误代码
 	public final static String GLOBAL_SUCCESS_CODE = "0000"; // 成功

@@ -11,13 +11,16 @@
     <!-- 测试用 -->
   	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
   	<bean id="print" class="com.ncr.powerswitch.processor.PrintProcessor"></bean>
+  	<bean id="hsmTest" class="com.ncr.powerswitch.processor.DataKeyProcessor"></bean>
   	<!-- 数据库数据源 -->
+  	<!--  
   	<bean id="defaultDS" class="com.ncr.powerswitch.jdbc.BaseDataSource">
   		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
         <property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"/>
         <property name="username" value="system"/>
         <property name="password" value="NCR0racle"/>
   	</bean>
+  	-->
   	<!-- 业务处理 -->
   	<bean id="pre-action" class=" com.ncr.powerswitch.processor.PreActionProcessor"></bean>
   	<bean id="rkl-processor" class="com.ncr.powerswitch.processor.RKLProcessor"></bean>
@@ -30,6 +33,11 @@
 			<from uri="restlet:/requests/?restletMethods=POST"/>
 			<process ref="pre-action"/>
 			<process ref="print"/>
+		</route>
+		<!-- HSM测试路由 -->
+		<route id="hsmTestingRoute">
+			<from uri="timer://myTimer?period=200000"/>
+			<process ref="hsmTest"/>
 		</route>
 	</camelContext>
 </beans>

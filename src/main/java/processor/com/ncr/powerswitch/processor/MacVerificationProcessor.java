@@ -10,11 +10,13 @@ import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ncr.powerswitch.remote.atm.RemoteDAO;
 import com.ncr.powerswitch.utils.FormatUtil;
 
 public class MacVerificationProcessor implements Processor {
 	
 	private final static Log log = LogFactory.getLog(MacVerificationProcessor.class);
+	public RemoteDAO remoteDao;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -22,6 +24,7 @@ public class MacVerificationProcessor implements Processor {
 		String msg = exchange.getIn().getBody(String.class);
 		Map<String, Object> payloadMap = FormatUtil.json2Map(msg);
 		
+		//全报文进行MAC验证，拼接报文阈值
 		StringBuffer buffer = new StringBuffer();
 		List<String> keys = new ArrayList<String>(payloadMap.keySet());
 		int size = keys.size();
@@ -34,7 +37,6 @@ public class MacVerificationProcessor implements Processor {
 		
 		Map<String, String> inputMap = new HashMap<String, String>();
 		inputMap.put("data", data);
-		
 		
 	}
 }

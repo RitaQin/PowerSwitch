@@ -95,7 +95,7 @@ public class RKLProcessor implements Processor {
 		// 从请求报文中提取远程密钥下载所需参数
 		String ip = requestMap.get("ip") != null ? requestMap.get("ip").toString() : null; // IP地址
 		String strTerminalID = requestMap.get("TerminalID") != null ? requestMap.get("TerminalID").toString() : null; // 终端号
-		String strBatch = requestMap.get("Batch") != null ? requestMap.get("Batch").toString() : null; // 批次
+		// String strBatch = requestMap.get("Batch") != null ? requestMap.get("Batch").toString() : null; // 批次 
 		String strEppSerialNo = requestMap.get("EppSerialNo") != null ? requestMap.get("EppSerialNo").toString() : null; // EPP序列号
 		String strEppSerialNoSign = requestMap.get("EppSerialNoSign") != null
 				? requestMap.get("EppSerialNoSign").toString()
@@ -134,6 +134,7 @@ public class RKLProcessor implements Processor {
 				return;
 			}
 		}
+		/**
 		// 验证批次号是否为空
 		else if (StringUtil.isNull(strBatch)) {
 			// TODO: 记录错误
@@ -142,6 +143,7 @@ public class RKLProcessor implements Processor {
 			exchange.getOut().setBody(errorMsg);
 			return;
 		}
+		**/
 		// 验证EPP序列号是否为空
 		else if (StringUtil.isNull(strEppSerialNo)) {
 			// TODO: 记录错误

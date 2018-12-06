@@ -98,12 +98,15 @@ public class HSMSocketClient {
 	 * @return
 	 */
 	public synchronized static String sendAndReceivePacket(String msg, String ip, String port, boolean unpack) {
+		System.out.println("starting send and receive packet....");
 		if (!isOpenClient) {
+			System.out.println("not open client");
 			return null;
 		}
 		if (socket == null) {
 			String result = newInstance(ip, Integer.parseInt(port), timeout);
 			if (result != null && !result.equals(SOCKET_SUCCESS_CODE)) {
+				System.out.println("Error occurred: " + result);
 				return result;
 			}
 		}
@@ -134,6 +137,7 @@ public class HSMSocketClient {
 			}
 		} catch (IOException e) {
 			log.error("socket client receive packet error, message is" + e.getMessage() + ".");
+			System.out.println("socket client receive packet error, message is" + e.getMessage() + ".");
 		} finally {
 			if (inputStream != null) {
 				try {
@@ -141,6 +145,7 @@ public class HSMSocketClient {
 				} catch (IOException e) {
 					log.error(
 							"socket client receive packet,InputStream close error, message is" + e.getMessage() + ".");
+					System.out.println("socket client receive packet,InputStream close error, message is" + e.getMessage() + ".");
 				}
 			}
 			if (outputStream != null) {
@@ -149,6 +154,7 @@ public class HSMSocketClient {
 				} catch (IOException e) {
 					log.error(
 							"socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
+					System.out.println("socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
 				}
 			}
 			if (socket != null) {
@@ -160,6 +166,7 @@ public class HSMSocketClient {
 					// }
 				} catch (IOException e) {
 					log.error("socket client receive packet,socket close error, message is" + e.getMessage() + ".");
+					System.out.println("socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
 				}
 			}
 		}
