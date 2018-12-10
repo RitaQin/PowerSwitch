@@ -28,22 +28,22 @@
         <param-value>classpath:camel-config.xml</param-value>
     </context-param>
 
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
 
-    <servlet>
-        <servlet-name>RestletServlet</servlet-name>
-        <servlet-class>org.restlet.ext.spring.SpringServerServlet</servlet-class>
-        <init-param>
-            <param-name>org.restlet.component</param-name>
-            <param-value>RestletComponent</param-value>
-        </init-param>
-    </servlet>
+	<!-- Restlet Servlet -->
+	<servlet>
+		<servlet-name>RestletServlet</servlet-name>
+		<servlet-class>org.restlet.ext.spring.SpringServerServlet</servlet-class>
+		<init-param>
+			<param-name>org.restlet.component</param-name>
+			<param-value>RestletComponent</param-value>
+		</init-param>
+	</servlet>
 
-    <servlet-mapping>
-        <servlet-name>RestletServlet</servlet-name>
-        <url-pattern>/rs/*</url-pattern>
-    </servlet-mapping>
-
+	<servlet-mapping>
+		<servlet-name>RestletServlet</servlet-name>
+		<url-pattern>/rs/*</url-pattern>
+	</servlet-mapping>
 </web-app>

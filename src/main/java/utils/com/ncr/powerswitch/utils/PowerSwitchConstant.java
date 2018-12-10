@@ -62,5 +62,13 @@ public class PowerSwitchConstant {
 	public final static String REMOTEKEYLOAD_ERROR_SK__DATA = "2026"; // 无法获取银行私钥数据
 	public final static String REMOTEKEYLOAD_ERROR_UPTATE_EPPID = "2027"; // 更新EPP序列号失败
 	public final static String REMOTEKEYLOAD_ERROR_EPPID_COMPARE_FALSE = "2028"; // EPP序列号与端机EPP序列号不匹配，拒绝操作。
+	
+	//报文头错误代码
+	public final static String CHANNEL_ID_NULL_ERROR = "3001" ; //ChannelId空
+	public final static String TRANSACTION_CODE_NULL_ERROR = "3002"; //TransactionCode空
+	public final static String TERMINAL_ID_NULL_ERROR = "3003"; //terminalId空
+	public final static String TRACE_NUMBER_NULL_ERROR = "3004"; //traceNumber空
+	public final static String TRANSACTION_DATE_NULL_ERROR = "3005"; //transactionDate空
+	public final static String TRANSACTION_TIME_NULL_ERROR = "3006"; //transactionTime空
 
 }

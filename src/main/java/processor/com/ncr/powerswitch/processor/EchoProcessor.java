@@ -7,9 +7,8 @@ public class EchoProcessor implements Processor{
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-		
+		System.out.println("PowerSwitch Running");
 		exchange.getOut().setBody("PowerSwitch Connected!");
-		
 	}
 	
 }

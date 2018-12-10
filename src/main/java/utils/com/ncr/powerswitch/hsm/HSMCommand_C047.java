@@ -47,9 +47,9 @@ public class HSMCommand_C047 extends HSMCommand {
 		commandBuffer.append(inputMap.get("MANUPK").toString());
 		//Hash 方式 0：SHA1   1：MD5
 		commandBuffer.append("00");
-		//数据长度
+		//EPP公钥长度
 		commandBuffer.append(StringUtil.tentoSixteen(inputMap.get("strEppPublicKey").trim().length()+"", 4));
-		//数据
+		//EPP公钥
 		commandBuffer.append(inputMap.get("strEppPublicKey"));
 		//签名长度 
 		commandBuffer.append(StringUtil.tentoSixteen(inputMap.get("strEppPublicKeySign").trim().length()+"",4));
