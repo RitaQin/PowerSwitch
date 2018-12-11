@@ -12,9 +12,9 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.DriverManager;
 import java.io.PrintWriter;
 
-public class BaseDataSource implements DataSource {
+public class EnhancedDataSource implements DataSource {
 
-	private final static Log log = LogFactory.getLog(BaseDataSource.class);
+	private final static Log log = LogFactory.getLog(EnhancedDataSource.class);
 	private static String driverClassName;
 	private static String url;
 	private static String username;
@@ -27,17 +27,17 @@ public class BaseDataSource implements DataSource {
 	// 连接池
 	private static LinkedList<Connection> pool = (LinkedList<Connection>) Collections
 			.synchronizedList(new LinkedList<Connection>());
-	private static BaseDataSource instance = new BaseDataSource();
+	private static EnhancedDataSource instance = new EnhancedDataSource();
 
 	static {
 		try {
 			Class.forName(driverClassName);
 		} catch (ClassNotFoundException e) {
-			log.error("找不到驱动类！", e);
+			log.error("Driver Not Found", e);
 		}
 	}
 
-	private BaseDataSource() {
+	private EnhancedDataSource() {
 	}
 
 	/**
@@ -45,9 +45,9 @@ public class BaseDataSource implements DataSource {
 	 * 
 	 * @return 数据源单例
 	 */
-	public BaseDataSource instance() {
+	public EnhancedDataSource instance() {
 		if (instance == null)
-			instance = new BaseDataSource();
+			instance = new EnhancedDataSource();
 		return instance;
 	}
 
@@ -126,18 +126,18 @@ public class BaseDataSource implements DataSource {
 	}
 
 	public static void setDriverClassName(String driverClassName) {
-		BaseDataSource.driverClassName = driverClassName;
+		EnhancedDataSource.driverClassName = driverClassName;
 	}
 
 	public static void setUrl(String url) {
-		BaseDataSource.url = url;
+		EnhancedDataSource.url = url;
 	}
 
 	public static void setUsername(String username) {
-		BaseDataSource.username = username;
+		EnhancedDataSource.username = username;
 	}
 
 	public static void setPassword(String password) {
-		BaseDataSource.password = password;
+		EnhancedDataSource.password = password;
 	}
 }
