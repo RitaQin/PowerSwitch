@@ -1,0 +1,46 @@
+<service>
+  <SYS_HEAD>
+    <ServiceCode>12001000001</ServiceCode> <!-- 固定 -->
+    <ServiceScene>06</ServiceScene> <!-- 固定 -->
+    <ConsumerId>${consumerId}</ConsumerId>
+    <ConsumerSeqNo>${consumerSeqNo}</ConsumerSeqNo>
+    <OrgConsumerSeqNo>${orgCOnsumerSeqNo}</OrgConsumerSeqNo>
+    <TranDate>${tranDate}</TranDate>
+    <TranTime>${tranTime}</TranTime>
+    <FileFlag>${fileFlag}</FileFlag>
+  </SYS_HEAD>
+  <APP_HEAD>
+    <TranTellerNo>${tranTellerNo}</TranTellerNo>
+  </APP_HEAD>
+  <LOCAL_HEAD>
+    <TranCode>AC51</TranCode> <!-- 固定  -->
+  </LOCAL_HEAD>
+  <BODY>
+    <Amt1 /> <!-- 空，用TxnAmt替代  -->
+    <PcdFee>${pcdFee}</PcdFee>
+    <PwdChkFlg>${pwdChkFlg}</PwdChkFlg> <!-- N不校验 否则校验 -->
+    <BranchId>${branchId}</BranchId>
+    <DbAcctNo>${dbAcctNo}</DbAcctNo>
+    <CnlInd>${cnlInd}</CnlInd> 
+    <Pwd>${pwd}</Pwd>
+    <Ccy>${ccy}</Ccy>
+    <CashPayFlg>${cashPayFlg}</CashPayFlg>
+    <TxnAmt>${txnAmt}</TxnAmt>
+    <CashTfrFlg>${cashTfrFlg}</CashTfrFlg>
+    <AcgCntlFlg>${acgCntFlg}</AcgCntlFlg>
+    <CrAcctNo>${crAcctNo}</CrAcctNo>
+    <Note>${note}</Note>
+    <PyrNm>${pyrNm}</PyrNm>
+    <PyeAcctNm>${pyeAcctNm}</PyeAcctNm>
+    <SmyDsc>${smyDsc}</SmyDsc>
+    <CrSubAcctOrdrNo>${crSubAcctOrdrNo}</CrSubAcctOrdrNo>
+    <TxnSrcTp>${txnSrcTp}</TxnSrcTp>
+    <RetSnglInf>${retSnglInf}</RetSnglInf>
+    <wrkSrtKey>${wrkSrtKey}</wrkSrtKey>
+    <FeeRateTp>${feeRateTp}</FeeRateTp>
+    <DbSubAcctOrdrNo>${dbSubAcctOrdrNo}</DbSubAcctOrdrNo>
+    <AgrmNo>${agrmNo}</AgrmNo>
+    <VchrNo>${vchrNo}</VchrNo>
+    <PcdFeeCashTfrFlg>${pcdFeeCasTfrFlg</PcdFeeCashTfrFlg>
+  </BODY>
+</service>

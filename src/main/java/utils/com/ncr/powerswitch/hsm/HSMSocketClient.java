@@ -87,7 +87,7 @@ public class HSMSocketClient {
 				return SOCKET_UNKNOWN_ERROR_CODE;
 			}
 		} else {
-			log.error("jdbc.properties,socket.client.open = false. ");
+			log.error("socket.client.open = false. ");
 			return SOCKET_CLIENT_CLOSE_ERROR_CODE;
 		}
 	}

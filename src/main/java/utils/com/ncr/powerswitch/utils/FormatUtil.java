@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.xstream.XStream;
 
 /***
  * 格式转化辅助类
@@ -26,12 +27,30 @@ public class FormatUtil {
 		return resultMap;
 	}
 	
-	//Map转json字符
+	//map转json字符
 	public static String map2Json(Map<String, Object> jsonMap) {
 		String json = new Gson().toJson(jsonMap);	
 		return json; 
 	}
 	
+	//将map转成xml字符串
+	public static String map2Xml(Map<String, String> xmlMap) {
+		 XStream xstream = new XStream();
+		 xstream.alias("map", java.util.Map.class);
+		 String xml = xstream.toXML(xmlMap);
+		return xml;
+	}
+	
+	//将xml字符串转成map
+	public static Map<String, String> xml2Map(String xml) {
+		XStream xstream = new XStream();
+		xstream.alias("map", java.util.Map.class);
+	    @SuppressWarnings("unchecked")
+	    Map<String, String> xmlMap = (Map<String, String>) xstream.fromXML(xml);
+		return xmlMap;
+	}
+	
+	//stream转字符串
 	public static String stream2Str(InputStream bodyStream) throws IOException {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		byte[] contextBytes = new byte[4096];
@@ -46,6 +65,7 @@ public class FormatUtil {
 		}
 	}
 	
+	//byte转字符串
 	public static String byteArray2Str(byte[] b) {
 		return new String(b);
 	}
