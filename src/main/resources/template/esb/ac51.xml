@@ -4,7 +4,7 @@
     <ServiceScene>06</ServiceScene> <!-- 固定 -->
     <ConsumerId>${consumerId}</ConsumerId>
     <ConsumerSeqNo>${consumerSeqNo}</ConsumerSeqNo>
-    <OrgConsumerSeqNo>${orgCOnsumerSeqNo}</OrgConsumerSeqNo>
+    <OrgConsumerSeqNo>${orgConsumerSeqNo}</OrgConsumerSeqNo>
     <TranDate>${tranDate}</TranDate>
     <TranTime>${tranTime}</TranTime>
     <FileFlag>${fileFlag}</FileFlag>
@@ -42,5 +42,22 @@
     <AgrmNo>${agrmNo}</AgrmNo>
     <VchrNo>${vchrNo}</VchrNo>
     <PcdFeeCashTfrFlg>${pcdFeeCasTfrFlg</PcdFeeCashTfrFlg>
+    <OppAcctNo>${oppAcctNo}</OppAcctNo>
+    <VchrTp>${vchrTp}</VchrTp>
+    <IssuDt>${issuDt}</IssuDt>
+    <OppBnkNo>${oppBnkNo}</OppBnkNo>
+    <HngAcgSbjNo>${hngAcgSbjNo}</HngAcgSbjNo>
+    <OppBnkNm>${oppBnkNm}</OppBnkNm>
+    <ApprTellerNo>${apprTellerNo}</ApprTellerNo>
+    <AgrmTpDsc>${agrmTpDsc}</AgrmTpDsc>
+    <SmyCd>${smyCd}</SmyCd>
+    <PplBnkWrkDt>${pplBnkWrkDt}</PplBnkWrkDt>
+    <PcdFeeSmyCd>${pcdFeeSmyCd}</PcdFeeSmyCd>
+    <FlowBnkCntlFlg>${flowBnkCntlFlg}</FlowBnkCntlFlg>
+    <FlowBnkTskNo>${flowBnkTskNo}</FlowBnkTskNo>
+    <FormrSeqNo>${formrSeqNo}</FormrSeqNo>
+    <FormrTranDate>${formrTranDate}</FormrTranDate>
+    <MrchId>${mrchId}</MrchId>
+    <HngAcctBrId>${hngAcctBrId}</HngAcctBrId>
   </BODY>
 </service>
