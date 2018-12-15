@@ -14,7 +14,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -136,6 +135,14 @@ public abstract class ESBClient {
 			}
 		}
 		return true;
+	}
+	
+	public static String getServerIp() {
+		return serverIp;
+	}
+	
+	public static int getPort() {
+		return serverPort;
 	}
 
 }

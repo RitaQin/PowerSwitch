@@ -1,12 +1,19 @@
 package com.ncr.powerswitch.esb;
 
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_SUCCESS_CODE;
+import static com.ncr.powerswitch.utils.PowerSwitchConstant.SOCKET_UNKNOWN_ERROR_CODE;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+
+import com.ncr.powerswitch.utils.StringUtil;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -112,7 +119,79 @@ public class ESB_AC51 extends ESBClient {
 	@Override
 	public String sendAndReceivePackets(String msg, String ip, String port, boolean unpack) {
 		
-		return null;
+		System.out.println("starting send and receive packet....");
+		if (!isOpenClient) {
+			System.out.println("not open client");
+			return null;
+		}
+		if (socket == null) {
+			String result = newInstance(ip, Integer.parseInt(port), timeout);
+			if (result != null && !result.equals(SOCKET_SUCCESS_CODE)) {
+				System.out.println("Error occurred: " + result);
+				return result;
+			}
+		}
+		InputStream inputStream = null;
+		OutputStream outputStream = null;
+		try {
+			outputStream = socket.getOutputStream();
+			byte[] bytelst = StringUtil.ASCII_To_BCD(msg.getBytes(), msg.length());
+			outputStream.write(bytelst);
+			outputStream.flush();
+
+			inputStream = socket.getInputStream();
+			byte[] bytes = new byte[maxPacket];
+			int n = inputStream.read(bytes);
+			if (!unpack) {
+				return StringUtil.bcd2Str(bytes, n);
+			} else {
+				String retmsg = StringUtil.bcd2Str(bytes, n);
+				if (retmsg != null) {
+					byte[] bs = StringUtil.ASCII_To_BCD(retmsg.getBytes(), retmsg.length());
+					if (bs != null) {
+						String retmsg_unpack = "";
+						for (int i = 0; i < bs.length; i++) {
+							retmsg_unpack += StringUtil.asc_to_bcd(bs[i]);
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
+			log.error("socket client receive packet error, message is" + e.getMessage() + ".");
+			System.out.println("socket client receive packet error, message is" + e.getMessage() + ".");
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error(
+							"socket client receive packet,InputStream close error, message is" + e.getMessage() + ".");
+					System.out.println("socket client receive packet,InputStream close error, message is" + e.getMessage() + ".");
+				}
+			}
+			if (outputStream != null) {
+				try {
+					outputStream.close();
+				} catch (IOException e) {
+					log.error(
+							"socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
+					System.out.println("socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
+				}
+			}
+			if (socket != null) {
+				try {
+					socket.close();
+					socket = null;
+					// if(socket == null){
+					// newInstance(serverIp,serverPort,timeout);
+					// }
+				} catch (IOException e) {
+					log.error("socket client receive packet,socket close error, message is" + e.getMessage() + ".");
+					System.out.println("socket client receive packet,outputStream close error, message is" + e.getMessage() + ".");
+				}
+			}
+		}
+		return SOCKET_UNKNOWN_ERROR_CODE;
 	}
 	
 	public String[] getVerifyFields() {
