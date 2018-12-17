@@ -10,7 +10,7 @@ import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.ncr.powerswitch.remote.atm.RemoteDAO;
+import com.ncr.powerswitch.DAO.RemoteDAO;
 import com.ncr.powerswitch.utils.FormatUtil;
 
 public class MacVerificationProcessor implements Processor {

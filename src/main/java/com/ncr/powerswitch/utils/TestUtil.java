@@ -66,8 +66,8 @@ public class TestUtil {
 		Map<String, String> keyMap = new HashMap<String, String>(); 
 		keyMap.put("MANUPK", VENDOR_KEY);
 		keyMap.put("MANUPKLENGTH", Integer.toString(VENDOR_KEY.length()));
-		keyMap.put("strEppPublicKey", EPP_KEY);
-		keyMap.put("strEppPublicKeySign", EPP_SIGN);
+		//keyMap.put("strEppPublicKey", EPP_KEY);
+		//keyMap.put("strEppPublicKeySign", EPP_SIGN);
 		
 		return keyMap;
 	}

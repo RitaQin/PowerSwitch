@@ -10,6 +10,7 @@ import com.ncr.powerswitch.hsm.HSMCommand_C047;
 import com.ncr.powerswitch.hsm.HSMCommand_C049;
 import com.ncr.powerswitch.hsm.HSMCommand_D106;
 import com.ncr.powerswitch.hsm.HSMSocketClient;
+import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.TestUtil;
 
 public class DataKeyProcessor implements Processor {
@@ -17,7 +18,11 @@ public class DataKeyProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
+		String jsonStr = exchange.getIn().getBody().toString();
+		Map<String, Object> keyMap = FormatUtil.json2Map(jsonStr);
 		Map<String, String> inputMap = TestUtil.loadKeyData();
+		inputMap.put("strEppPublicKey", keyMap.get("eppPublicKey").toString());
+		inputMap.put("strEppPublicKeySign", keyMap.get("eppPublicKeySign").toString());
 		System.out.println("Starting command C047");
 		HSMCommand_C047 c047 = new HSMCommand_C047(inputMap);
 		String c047_msg = c047.packageInputField();

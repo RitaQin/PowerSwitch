@@ -2,6 +2,7 @@
 <<<<<<<=HEAD
 >>>>>>>=esb
 eclipse.preferences.version=1
+encoding//src/main/java/com/ncr/powerswitch/DAO/RemoteDAO.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/hsm/HSMCommand.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/hsm/HSMCommand_C046.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/hsm/HSMCommand_C047.java=UTF-8
@@ -13,7 +14,6 @@ encoding//src/main/java/com/ncr/powerswitch/jdbc/BaseDataSource.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/processor/MacVerificationProcessor.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/processor/RKLProcessor.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/processor/RequestHeaderProcessor.java=UTF-8
-encoding//src/main/java/com/ncr/powerswitch/remote/atm/RemoteDAO.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/utils/FormatUtil.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/utils/LogUtil.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/utils/PowerSwitchConstant.java=UTF-8

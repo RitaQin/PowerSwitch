@@ -31,11 +31,14 @@
 		<route id="postRequest">
 			<from uri="restlet:/requests/?restletMethods=POST"/>
 			<process ref="header-verification"/> <!-- 验证报文头有效性 -->
-		</route>
-		<!-- HSM测试路由 --> 
-		<route id="hsmTestingRoute">
-			<from uri="restlet:/rkl"/>
-			<process ref="hsmTest"/>
+				<choice>
+					<when>
+					  <simple>${headers.TranCode} == 'RKL'</simple>
+                      <bean ref="hsmTest"/>
+					</when>
+					<otherwise>
+					</otherwise>
+				</choice>
 		</route>
 	</camelContext>
 </beans>

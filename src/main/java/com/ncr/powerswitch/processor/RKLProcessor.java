@@ -51,7 +51,7 @@ import com.ncr.powerswitch.hsm.HSMCommand_C046;
 import com.ncr.powerswitch.hsm.HSMCommand_C047;
 import com.ncr.powerswitch.hsm.HSMCommand_C049;
 import com.ncr.powerswitch.hsm.HSMCommand_D106;
-import com.ncr.powerswitch.remote.atm.RemoteDAO;
+import com.ncr.powerswitch.DAO.RemoteDAO;
 
 /***
  * 远程密钥下载处理器 Remote Key Loading Using Signatures

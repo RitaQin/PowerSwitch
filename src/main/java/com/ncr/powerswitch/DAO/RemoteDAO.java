@@ -1,4 +1,4 @@
-package com.ncr.powerswitch.remote.atm;
+package com.ncr.powerswitch.DAO;
 
 import java.util.List;
 import java.util.Map;

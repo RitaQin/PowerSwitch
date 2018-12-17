@@ -26,7 +26,7 @@ import com.ncr.powerswitch.utils.ReturnMsgUtil;
 import com.ncr.powerswitch.utils.SnowflakeIdGenerator;
 
 /***
- * pre-action processor 报文格式预处理，验证报文头信息 报文头实例 { "head": { "channelId":"BS",
+ * 报文格式预处理，验证报文头信息 报文头实例 { "head": { "channelId":"BS",
  * "transactionCode":"BSJC001", "terminalId":"20001234",
  * "traceNumber":"00000001", "transactionDate":"20180906",
  * "transactionTime":"104405" } }
@@ -46,25 +46,30 @@ public class RequestHeaderProcessor implements Processor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
-		// 将收到的请求转化为map向后传递
+		
+		String jsonStr = FormatUtil.stream2Str((InputStream) exchange.getIn().getBody());
+		
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		// 将请求报文转为map存入context
+		jsonMap = FormatUtil.json2Map(jsonStr);
+		
 		@SuppressWarnings("unchecked")
-		Series<Header> headers = (Series<Header>) exchange.getIn().getHeader("org.restlet.http.headers");
-		String body = FormatUtil.stream2Str((InputStream) exchange.getIn().getBody());
+		Map<String, String> head = (Map<String, String>) jsonMap.get("head"); 
+		@SuppressWarnings("unchecked")
+		Map<String, String> body = (Map<String, String>) jsonMap.get("body");
 		// 开始验证报文头的有效性
-		String channelId = headers.getFirstValue("channelId", true) == null ? null
-				: headers.getFirstValue("channelId", true).toString();
-		System.out.println("channel Id: " + channelId);
-		String transactionCode = headers.getFirstValue("transactionCode", true) == null ? null
-				: headers.getFirstValue("transactionCode", true).toString();
-		String terminalId = headers.getFirstValue("terminalId", true) == null ? null
-				: headers.getFirstValue("terminalId", true).toString();
-		String traceNumber = headers.getFirstValue("traceNumber", true) == null ? null
-				: headers.getFirstValue("traceNumber", true).toString();
-		String transactionDate = headers.getFirstValue("transactionDate", true) == null ? null
-				: headers.getFirstValue("transactionDate", true).toString();
-		String transactionTime = headers.getFirstValue("transactionTime", true) == null ? null
-				: headers.getFirstValue("transactionTime", true).toString();
+		String channelId = head.get("channelId") == null ? null
+				: head.get("channelId").toString();
+		String transactionCode = head.get("transactionCode") == null ? null
+				: head.get("transactionCode").toString();
+		String terminalId = head.get("terminalId") == null ? null
+				: head.get("terminalId").toString();
+		String traceNumber = head.get("traceNumber") == null ? null
+				: head.get("traceNumber").toString();
+		String transactionDate = head.get("transactionDate") == null ? null
+				: head.get("transactionDate").toString();
+		String transactionTime = head.get("transactionTime") == null ? null
+				: head.get("transactionTime").toString();
 
 		String errorMsg = null;
 
@@ -110,22 +115,22 @@ public class RequestHeaderProcessor implements Processor {
 		// 生成唯一的powerswitch流水号
 		SnowflakeIdGenerator generator = new SnowflakeIdGenerator(workerId, datacenterId);
 		long snowId = generator.nextId();
-
+		
 		Map<String, Object> requestMap = new HashMap<String, Object>();
-		// 将请求报文转为map存入context
-		requestMap = FormatUtil.json2Map(body);
+
 		// 添加必输报文头
 		requestMap.put("CnlInd", channelId);
 		requestMap.put("TranCode", transactionCode);
 		requestMap.put("ConsumerId", terminalId); // TODO: 需要确认
-		requestMap.put("ConsumerSeqNo", traceNumber); // TODO: 需要确认
-		requestMap.put("OrgConsumerSeqNo", snowId); // powerswitch 流水号
+		requestMap.put("ConsumerSeqNo", snowId); // TODO: 需要确认
 		requestMap.put("TranDate", transactionDate);
 		requestMap.put("TranTime", transactionTime);
 		requestMap.put("FileFlag", "0");
+		requestMap.putAll(body);
 
-		System.out.println(requestMap);
+		//将交易标识放入上下文的header中
+		exchange.getIn().setHeader("TranCode", transactionCode); 
 		// 校验完毕向后传递
-		exchange.getOut().setBody(requestMap);
+		exchange.getIn().setBody(requestMap);
 	}
 }
