@@ -553,17 +553,6 @@ public class RKLProcessor implements Processor {
 				} else {
 					inputMap.put("userReservedStr", DEFAULT_USER_RESERVED_STR);// 用户保留字，暂用16位"0"
 				}
-				if (mapmf.get("SKLENGTH") != null) {
-					inputMap.put("SKLENGTH", mapmf.get("SKLENGTH").toString());// 私钥长度
-				} else {
-					// TODO:记录错误
-					// log(LogLevel.ERROR,getText(IL8N_REMOTEKEYLOAD_DEFAULT,
-					// REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA));
-					errorMsg = ReturnMsgUtil.generateErrorMessage(REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA,
-							getText(IL8N_REMOTEKEYLOAD_DEFAULT, REMOTEKEYLOAD_ERROR_SK_LENGTH_DATA));
-					exchange.getOut().setBody(errorMsg);
-					return;
-				}
 				if (mapmf.get("SK") != null) {
 					inputMap.put("SK", mapmf.get("SK").toString());// 私钥
 				} else {

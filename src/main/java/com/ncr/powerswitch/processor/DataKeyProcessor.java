@@ -1,5 +1,6 @@
 package com.ncr.powerswitch.processor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -21,6 +22,7 @@ public class DataKeyProcessor implements Processor {
 		String jsonStr = exchange.getIn().getBody().toString();
 		Map<String, Object> keyMap = FormatUtil.json2Map(jsonStr);
 		Map<String, String> inputMap = TestUtil.loadKeyData();
+		Map<String, Object> outMap = new HashMap<String, Object>();
 		inputMap.put("strEppPublicKey", keyMap.get("eppPublicKey").toString());
 		inputMap.put("strEppPublicKeySign", keyMap.get("eppPublicKeySign").toString());
 		System.out.println("Starting command C047");
@@ -48,6 +50,7 @@ public class DataKeyProcessor implements Processor {
 		if (returnMsg != null) {
 			if (returnMsg.length() == 52 && returnMsg.substring(0, 2).equals("41")) {
 				masterKey = returnMsg.substring(4, 36);
+				String checkCode = masterKey.substring(36, 52);
 				System.out.println("Master Key is " + masterKey);
 
 			} else {
@@ -71,23 +74,22 @@ public class DataKeyProcessor implements Processor {
 				System.out.println("C049 轉加密文： " + encryptedMk);
 			} else {
 				System.out.println("C049 not verified  " + c049Res);
+				exchange.getOut().setBody("C049 not verified  " + c049Res);
 			}
 		} else {
 			System.out.println("C049 returns null");
+			exchange.getOut().setBody("C049 returns null");
 		}
 
 		System.out.println("Starting Command C046");
 		String sk = TestUtil.BANK_PRIVATE_KEY;
-		int sklen = sk.length();
-		inputMap.put("SKLENGTH", Integer.toString(sklen));
 		inputMap.put("SK", sk);
 		inputMap.put("encryption", encryptedMk);
 		HSMCommand_C046 c046 = new HSMCommand_C046(inputMap);
 		String c046Msg = c046.packageInputField();
-		System.out.println("c046 : " + c046Msg);
 		String c046Res = HSMSocketClient.sendAndReceivePacket(c046Msg, "8.99.9.91", "3000", false);
-		System.out.println("verifying C046 Return " + c046Res);
 		if (c046Res != null && c046Res.substring(0, 2).equals("41")) {
+			
 			exchange.getOut().setBody("C046 密文簽名： " + c046Res.substring(22, c046Res.length()));
 		} else {
 			exchange.getOut().setBody("C046未通過");

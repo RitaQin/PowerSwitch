@@ -33,13 +33,13 @@ public class HSMCommand_C046 extends HSMCommand {
 		// 命令
 		commandBuffer.append("C046");
 		// 用户保留字
-		commandBuffer.append("userReservedStr");
+		commandBuffer.append(inputMap.get("userReservedStr"));
 		// 索引
 		commandBuffer.append("FFFF");
 		// 索引
 		commandBuffer.append("01");
 		// 私钥长度
-		commandBuffer.append(StringUtil.tentoSixteen(inputMap.get("SKLENGTH").toString().trim(), 4));
+		commandBuffer.append(StringUtil.tentoSixteen(inputMap.get("SK").toString().trim().length() + "", 4));
 		// 私钥
 		commandBuffer.append(inputMap.get("SK").toString().trim());
 		// 私钥加解密标志
