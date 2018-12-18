@@ -64,7 +64,7 @@ public class DataKeyProcessor implements Processor {
 		String c049Msg = c049.packageInputField();
 		String c049Res = HSMSocketClient.sendAndReceivePacket(c049Msg, "8.99.9.91", "3000", false);
 		System.out.println("verifying C049 Return " + c049Res);
-		String encryptedMk = "FFFFFFFF";
+		String encryptedMk = null;
 		if (c049Res != null) {
 			if (c049Res.substring(0, 2).equals("41")) {
 				encryptedMk = c049Res.substring(22, c049Res.length());
@@ -84,6 +84,7 @@ public class DataKeyProcessor implements Processor {
 		inputMap.put("encryption", encryptedMk);
 		HSMCommand_C046 c046 = new HSMCommand_C046(inputMap);
 		String c046Msg = c046.packageInputField();
+		System.out.println("c046 : " + c046Msg);
 		String c046Res = HSMSocketClient.sendAndReceivePacket(c046Msg, "8.99.9.91", "3000", false);
 		System.out.println("verifying C046 Return " + c046Res);
 		if (c046Res != null && c046Res.substring(0, 2).equals("41")) {

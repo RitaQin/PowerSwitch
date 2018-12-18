@@ -41,6 +41,8 @@ public class StringUtil {
 
 	public static byte[] ASCII_To_BCD(byte[] ascii, int asc_len) {
 		byte[] bcd = new byte[asc_len / 2];
+		System.out.println("asc_len" + asc_len);
+		System.out.println("asc_len / 2" + asc_len / 2);
 		int j = 0;
 		for (int i = 0; i < (asc_len + 1) / 2; i++) {
 			bcd[i] = asc_to_bcd(ascii[j++]);
@@ -48,7 +50,7 @@ public class StringUtil {
 		}
 		return bcd;
 	}
-
+	
 	public static String bcd2Str(byte[] bytes, int n) {
 		char temp[] = new char[n * 2], val;
 
