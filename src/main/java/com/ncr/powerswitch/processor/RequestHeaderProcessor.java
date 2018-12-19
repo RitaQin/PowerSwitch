@@ -18,8 +18,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.engine.header.Header;
-import org.restlet.util.Series;
 
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.ReturnMsgUtil;
@@ -35,7 +33,7 @@ import com.ncr.powerswitch.utils.SnowflakeIdGenerator;
  *
  */
 
-public class RequestHeaderProcessor implements Processor {
+public class RequestHeaderProcessor implements BaseProcessor {
 
 	/** 工作机器ID(0~31) */
 	public long workerId = 1;

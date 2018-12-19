@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import com.ncr.powerswitch.DAO.RemoteDAO;
 import com.ncr.powerswitch.utils.FormatUtil;
 
-public class MacVerificationProcessor implements Processor {
+public class MacVerificationProcessor implements BaseProcessor {
 	
 	private final static Log log = LogFactory.getLog(MacVerificationProcessor.class);
 	public RemoteDAO remoteDao;

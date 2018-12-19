@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper">
+	<select id="getTerminalsIds" resultType="string">
+		SELECT TERMINALID FROM HOSTKEYTABLE
+	</select>
+	<select id="getTerminalKeyByTerminalId" parameterType="string" resultType="com.ncr.powerswitch.dataObject.TerminalKey">
+		SELECT * FROM HOSTKEYTABLE WHERE TERMINALID = #{terminalId}
+	</select>
+	<insert id="addTerminalKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
+		INSERT INTO HOSTKEYTABLE(TERMINALID,MASTERKEY,MASTERKEYCHECK,PINKEY,PINKEYNEW,MACKEY,
+			MACKEYNEW,TRACEKEY,TRACEKEYNEW,KEYINDEX,KEYINDEXNEW) VALUES (#{terminalId},#{masterKey},
+			#{masterKeyCheck},#{macKey},#{macKeyNew},#{pinKey},#{pinKeyNew},#{traceKey},#{traceKeyNew},
+			#{keyIndex},#{keyIndexNew})
+	</insert>
+</mapper>

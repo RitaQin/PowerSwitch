@@ -14,7 +14,7 @@ import com.ncr.powerswitch.hsm.HSMSocketClient;
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.TestUtil;
 
-public class DataKeyProcessor implements Processor {
+public class DataKeyProcessor implements BaseProcessor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {

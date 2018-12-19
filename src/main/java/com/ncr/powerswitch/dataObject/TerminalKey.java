@@ -7,10 +7,11 @@ package com.ncr.powerswitch.dataObject;
  *
  */
 
-public class HostKey implements DataObject {
+public class TerminalKey implements DataObject {
 
 	public String terminalId;
 	public String masterKey;
+	public String masterKeyCheck;
 	public String macKey;
 	public String macKeyNew;
 	public String pinKey;
@@ -98,6 +99,14 @@ public class HostKey implements DataObject {
 
 	public void setKeyIndexNew(String keyIndexNew) {
 		this.keyIndexNew = keyIndexNew;
+	}
+	
+	public String getKeyCheck() {
+		return masterKeyCheck;
+	}
+
+	public void setKeyCheck(String masterKeyCheck) {
+		this.masterKeyCheck = masterKeyCheck;
 	}
 
 }

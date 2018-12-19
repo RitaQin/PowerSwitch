@@ -76,7 +76,7 @@ import com.ncr.powerswitch.DAO.RemoteDAO;
  *
  */
 
-public class RKLProcessor implements Processor {
+public class RKLProcessor implements BaseProcessor {
 
 	/**
 	 * Log4j记录日志的工具类
