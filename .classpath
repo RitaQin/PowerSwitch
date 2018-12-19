@@ -33,5 +33,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/rq185015/Downloads/apache-tomcat-9.0.10-windows-x64/apache-tomcat-9.0.10/webapps/powerswitch-1.0.0/WEB-INF/classes/ojdbc6.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

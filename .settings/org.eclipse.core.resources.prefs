@@ -10,7 +10,6 @@ encoding//src/main/java/com/ncr/powerswitch/hsm/HSMCommand_C049.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/hsm/HSMCommand_D106.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/hsm/HSMCommand_D132.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/hsm/HSMSocketClient.java=UTF-8
-encoding//src/main/java/com/ncr/powerswitch/jdbc/BaseDataSource.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/processor/MacVerificationProcessor.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/processor/RKLProcessor.java=UTF-8
 encoding//src/main/java/com/ncr/powerswitch/processor/RequestHeaderProcessor.java=UTF-8
