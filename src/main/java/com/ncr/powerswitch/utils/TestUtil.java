@@ -45,6 +45,8 @@ public class TestUtil {
 			"81F9AEDF055E7B093F1D68F01F0CE8C7A0511160C0FFE145C0CEA7186759F8F06E03B44E4518602BF856896503" + 
 			"50948101D72F63B2FF330EF3B948A67DD040D4A00077A631C5A9796B9522";
 	
+	public static String MASTERKEY = null; 
+	
 	public static Map<String, String> loadKeyData () {
 		
 		Map<String, String> keyMap = new HashMap<String, String>(); 
@@ -55,5 +57,8 @@ public class TestUtil {
 		
 		return keyMap;
 	}
-
+	
+	public static void setMasterKey(String masterKey) {
+		MASTERKEY = masterKey;
+	}
 }

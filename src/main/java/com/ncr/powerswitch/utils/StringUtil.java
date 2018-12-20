@@ -138,7 +138,25 @@ public class StringUtil {
 			}
 			return str;
 		}
-
+	}
+	
+	/**
+	 * getHexString
+	 * 功能：将十进制的字符串转换成4位十六进制的字符串
+	 * 
+	 * 输入参数：
+	 * str     String     十进制表示的字符串
+	 * 
+	 * 输出参数：
+	 * Hex     String     长4位的十六进制表示的字符串
+	 */
+	public static String getHexString(String str){
+		String Hex = Integer.toHexString(Integer.parseInt(str));
+		Hex = Hex.toUpperCase();
+		while(Hex.length()<4){
+			Hex = "0" + Hex;
+		}
+		return Hex;
 	}
 
 }

@@ -4,8 +4,8 @@
        http://www.springframework.org/schema/beans classpath:/org/springframework/beans/factory/xml/spring-beans-2.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
     <!-- 导入数据库操作相关配置 -->
-    <import resource="mybatis-config.xml"/>
-    <import resource="persistence-config.xml"/>   
+    <!-- <import resource="mybatis-config.xml"/>  -->
+    <!-- <import resource="persistence-config.xml"/>   --> 
     <!-- 设置atmp接收请求的URL -->
     <bean id="RestletComponent" class="org.restlet.Component" ></bean>
     <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent"> 
@@ -13,7 +13,8 @@
     </bean>
     <!-- 测试用 -->
   	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
-  	<bean id="hsmTest" class="com.ncr.powerswitch.processor.DataKeyProcessor"></bean>
+  	<bean id="rklProcess" class="com.ncr.powerswitch.processor.DataKeyProcessor"></bean>
+  	<bean id="rqkProcess" class="com.ncr.powerswitch.processor.RQKProcessor"></bean>
   	<!-- 业务处理 -->
   	<bean id="header-verification" class=" com.ncr.powerswitch.processor.RequestHeaderProcessor"></bean>
   	<bean id="rkl" class="com.ncr.powerswitch.processor.RKLProcessor"></bean>
@@ -22,17 +23,15 @@
 			<from uri="restlet:/echo"/>
 			<process ref="echo"/>
 		</route>
-		<route id="postRequest">
-			<from uri="restlet:/requests/?restletMethods=POST"/>
-			<process ref="header-verification"/> <!-- 验证报文头有效性 -->
-				<choice>
-					<when>
-					  <simple>${headers.TranCode} == 'RKL'</simple>
-                      <bean ref="hsmTest"/>
-					</when>
-					<otherwise>
-					</otherwise>
-				</choice>
+		<route id="rkl">
+				<from uri="restlet:/rkl/?restletMethods=POST"/>
+				<process ref="header-verification"/>
+					<process ref="rklProcess"></process>
+		</route>
+		<route id="rqk">
+				<from uri="restlet:/rqk/?restletMethods=POST"/>
+				<process ref="header-verification"/>
+					<process ref="rqkProcess"></process>
 		</route>
 	</camelContext>
 </beans>

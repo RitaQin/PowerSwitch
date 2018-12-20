@@ -30,7 +30,7 @@ import com.ncr.powerswitch.utils.StringUtil;
  *
  */
 
-public abstract class ESBClient {
+public abstract class ESBClient implements ESBClientIntf {
 
 	public final static Log log = LogFactory.getLog(ESBClient.class);
 

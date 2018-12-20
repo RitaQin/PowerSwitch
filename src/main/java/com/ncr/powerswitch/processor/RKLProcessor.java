@@ -36,12 +36,18 @@ import static com.ncr.powerswitch.utils.ResourcesTool.getText;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.ApplicationContext;
 
 import com.ncr.powerswitch.hsm.HSMSocketClient;
+import com.ncr.powerswitch.persistIntf.HsmKeyTableMapper;
+import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
+import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.ReturnMsgUtil;
 import com.ncr.powerswitch.utils.StringUtil;
@@ -51,6 +57,8 @@ import com.ncr.powerswitch.hsm.HSMCommand_C046;
 import com.ncr.powerswitch.hsm.HSMCommand_C047;
 import com.ncr.powerswitch.hsm.HSMCommand_C049;
 import com.ncr.powerswitch.hsm.HSMCommand_D106;
+import com.ncr.powerswitch.DAO.HsmDao;
+import com.ncr.powerswitch.DAO.HsmDaoImpl;
 import com.ncr.powerswitch.DAO.RemoteDAO;
 
 /***
@@ -87,7 +95,16 @@ public class RKLProcessor implements BaseProcessor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		
+		CamelContext context = exchange.getContext();
+		SqlSessionFactory sessionFactory = (SqlSessionFactory) context.getRegistry().lookupByName("sqlSessionFactory");
+		SqlSession session = sessionFactory.openSession();
+		HsmKeyTableMapper hsmMapper = session.getMapper(HsmKeyTableMapper.class);
+		TerminalKeyTableMapper tkMapper = session.getMapper(TerminalKeyTableMapper.class);
+		TerminalTableMapper termMapper = session.getMapper(TerminalTableMapper.class);
+		
+		HsmDao hsmDao = new HsmDaoImpl(hsmMapper, tkMapper, termMapper);
+		
 		String msg = exchange.getIn(String.class);
 		Map<String, Object> requestMap = FormatUtil.json2Map(msg);
 		log.info("RKL PROCESSING : request msg: " + msg);

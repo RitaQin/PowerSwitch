@@ -20,5 +20,8 @@ public interface TerminalKeyTableMapper extends SqlMapperIntf {
 	
 	//增加一个新的终端密钥信息
 	public void addTerminalKey(TerminalKey terminalKey);
+	
+	//更新一个终端密钥信息
+	public void updateTerminalKey(TerminalKey terminalKey);
 
 }
