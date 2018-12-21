@@ -1,16 +1,17 @@
 package com.ncr.powerswitch.dataObject;
 
 /**
- * HSMKEYTABLE POJO¿‡
+ * PV_SYS_EPP±Ì POJO¿‡
  * 
  * @author rq185015
  *
  */
 
-public class HsmKey implements DataObject {
+public class EppKey implements DataObject {
 
-	public int id;
-	public String manu;
+	public int eppid;
+	public String eppName;
+	public String mfgCompanyId;
 	public String r1;
 	public String keyIndex;
 	public String mLength;
@@ -18,7 +19,6 @@ public class HsmKey implements DataObject {
 	public String flag2;
 	public String index1;
 	public String index2;
-	public String password;
 	public String bankPKLen;
 	public String bankPK;
 	public String skLen;
@@ -32,22 +32,29 @@ public class HsmKey implements DataObject {
 	public String mPKSignLen;
 	public String mPKSign;
 	public String hashType;
-	public String epp;
 
-	public int getId() {
-		return id;
+	public int getEppid() {
+		return eppid;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setEppid(int eppid) {
+		this.eppid = eppid;
 	}
 
-	public String getManu() {
-		return manu;
+	public String getEppName() {
+		return eppName;
 	}
 
-	public void setManu(String manu) {
-		this.manu = manu;
+	public void setEppName(String eppName) {
+		this.eppName = eppName;
+	}
+
+	public String getMfgCompanyId() {
+		return mfgCompanyId;
+	}
+
+	public void setMfgCompanyId(String mfgCompanyId) {
+		this.mfgCompanyId = mfgCompanyId;
 	}
 
 	public String getR1() {
@@ -104,14 +111,6 @@ public class HsmKey implements DataObject {
 
 	public void setIndex2(String index2) {
 		this.index2 = index2;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
 	}
 
 	public String getBankPKLen() {
@@ -217,13 +216,4 @@ public class HsmKey implements DataObject {
 	public void setHashType(String hashType) {
 		this.hashType = hashType;
 	}
-
-	public String getEpp() {
-		return epp;
-	}
-
-	public void setEpp(String epp) {
-		this.epp = epp;
-	}
-
 }

@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -115,19 +114,14 @@ public class RequestHeaderProcessor implements BaseProcessor {
 		long snowId = generator.nextId();
 		
 		Map<String, Object> requestMap = new HashMap<String, Object>();
-
-		// 添加必输报文头
-		requestMap.put("CnlInd", channelId);
-		requestMap.put("TranCode", transactionCode);
-		requestMap.put("ConsumerId", terminalId); // TODO: 需要确认
-		requestMap.put("ConsumerSeqNo", snowId); // TODO: 需要确认
-		requestMap.put("TranDate", transactionDate);
-		requestMap.put("TranTime", transactionTime);
-		requestMap.put("FileFlag", "0");
-		requestMap.putAll(body);
+		
+		if (body != null && body.size() > 0) {
+			requestMap.putAll(body);
+		}
 
 		//将交易标识放入上下文的header中
 		exchange.getIn().setHeader("TranCode", transactionCode); 
+		exchange.getIn().setHeader("serialNo", snowId);
 		// 校验完毕向后传递
 		exchange.getIn().setBody(requestMap);
 	}

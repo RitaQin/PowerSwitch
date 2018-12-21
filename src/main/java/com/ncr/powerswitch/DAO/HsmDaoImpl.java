@@ -4,17 +4,17 @@ import java.util.Map;
 
 import com.ncr.powerswitch.dataObject.Terminal;
 import com.ncr.powerswitch.dataObject.TerminalKey;
-import com.ncr.powerswitch.persistIntf.HsmKeyTableMapper;
+import com.ncr.powerswitch.persistIntf.EppTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 
 public class HsmDaoImpl implements HsmDao {
 	
-	private HsmKeyTableMapper hsmMapper; 
+	private EppTableMapper hsmMapper; 
 	private TerminalKeyTableMapper tkMapper; 
 	private TerminalTableMapper termMapper; 
 	
-	public HsmDaoImpl(HsmKeyTableMapper hsmMapper, TerminalKeyTableMapper tkMapper, TerminalTableMapper termMapper ) {
+	public HsmDaoImpl(EppTableMapper hsmMapper, TerminalKeyTableMapper tkMapper, TerminalTableMapper termMapper ) {
 		this.hsmMapper = hsmMapper; 
 		this.tkMapper = tkMapper; 
 		this.termMapper = termMapper;	

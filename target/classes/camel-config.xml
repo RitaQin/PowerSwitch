@@ -4,13 +4,18 @@
        http://www.springframework.org/schema/beans classpath:/org/springframework/beans/factory/xml/spring-beans-2.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
     <!-- 导入数据库操作相关配置 -->
-    <!-- <import resource="mybatis-config.xml"/>  -->
-    <!-- <import resource="persistence-config.xml"/>   --> 
+    <import resource="mybatis-config.xml"/>
+    <import resource="persistence-config.xml"/>
     <!-- 设置atmp接收请求的URL -->
     <bean id="RestletComponent" class="org.restlet.Component" ></bean>
     <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent"> 
      	<constructor-arg index="0"> <ref bean="RestletComponent" /> </constructor-arg> 
     </bean>
+    <!-- 属性文件 -->
+    <bean id="jdbcProperties" class="org.apache.camel.component.properties.PropertiesComponent"> 
+		<property name="location" value="classpath:jdbc.properties"/></bean>
+	<bean id="log4jProperties" class="org.apache.camel.component.properties.PropertiesComponent"> 
+		<property name="location" value="classpath:log4j.properties"/></bean>
     <!-- 测试用 -->
   	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
   	<bean id="rklProcess" class="com.ncr.powerswitch.processor.DataKeyProcessor"></bean>

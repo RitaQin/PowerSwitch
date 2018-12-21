@@ -42,10 +42,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.context.ApplicationContext;
 
 import com.ncr.powerswitch.hsm.HSMSocketClient;
-import com.ncr.powerswitch.persistIntf.HsmKeyTableMapper;
+import com.ncr.powerswitch.persistIntf.EppTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 import com.ncr.powerswitch.utils.FormatUtil;
@@ -99,7 +98,7 @@ public class RKLProcessor implements BaseProcessor {
 		CamelContext context = exchange.getContext();
 		SqlSessionFactory sessionFactory = (SqlSessionFactory) context.getRegistry().lookupByName("sqlSessionFactory");
 		SqlSession session = sessionFactory.openSession();
-		HsmKeyTableMapper hsmMapper = session.getMapper(HsmKeyTableMapper.class);
+		EppTableMapper hsmMapper = session.getMapper(EppTableMapper.class);
 		TerminalKeyTableMapper tkMapper = session.getMapper(TerminalKeyTableMapper.class);
 		TerminalTableMapper termMapper = session.getMapper(TerminalTableMapper.class);
 		

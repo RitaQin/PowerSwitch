@@ -3,19 +3,19 @@
 <!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
 <mapper namespace="com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper">
 	<select id="getTerminalsIds" resultType="string">
-		SELECT TERMINALID FROM HOSTKEYTABLE
+		SELECT TERMINALID FROM PV_SYS_TERMINALKEY
 	</select>
 	<select id="getTerminalKeyByTerminalId" parameterType="string" resultType="com.ncr.powerswitch.dataObject.TerminalKey">
-		SELECT * FROM HOSTKEYTABLE WHERE TERMINALID = #{terminalId}
+		SELECT * FROM PV_SYS_TERMINALKEY WHERE TERMINALID = #{terminalId}
 	</select>
 	<insert id="addTerminalKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
-		INSERT INTO TERMINALKEYTABLE(TERMINALID, MASTERKEY, MASTERKEYCHECK, MACKEY, MACKEYNEW,PINKEY, PINKEYNEW,
+		INSERT INTO PV_SYS_TERMINALKEY(TERMINALID, MASTERKEY, MASTERKEYCHECK, MACKEY, MACKEYNEW,PINKEY, PINKEYNEW,
 		TRACEKEY, TRACEKEYNEW, KEYINDEX, KEYINDEXNEW) VALUES (#{terminalId},#{masterKey},
 		#{masterKeyCheck},#{macKey},#{macKeyNew},#{pinKey},#{pinKeyNew},#{traceKey},#{traceKeyNew},
 		#{keyIndex},#{keyIndexNew})
 	</insert>
 	<update id="updateTerminalKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
-		UPDATE TERMINALTABLE SET MASTERKEY=#{masterKey},MASTERKEYCHECK=#{masterKeyCheck},
+		UPDATE PV_SYS_TERMINALKEY SET MASTERKEY=#{masterKey},MASTERKEYCHECK=#{masterKeyCheck},
 		MACKEY=#{macKey},MACKEYNEW=#{macKeyNew},PINKEY=#{pinKey},PINKEYNEW=#{pinKeyNew},
 		TRACEKEY=#{traceKey},TRACEKEYNEW=#{traceKeyNew},KEYINDEX=#{keyIndex},KEYINDEXNEW=#{keyIndexNew} 
 		WHERE TERMINALID=#{terminalId}

@@ -1,7 +1,7 @@
 package com.ncr.powerswitch.dataObject;
 
 /**
- * HOSTKEYTABLE POJO¿‡
+ * TerminalKey POJO¿‡
  * 
  * @author rq185015
  *
@@ -13,13 +13,12 @@ public class TerminalKey implements DataObject {
 	public String masterKey;
 	public String masterKeyCheck;
 	public String macKey;
-	public String macKeyNew;
+	public String macKeyHsm;
 	public String pinKey;
-	public String pinkeyNew;
+	public String pinkeyHsm;
 	public String traceKey;
-	public String traceKeyNew;
+	public String traceKeyHsm;
 	public String keyIndex;
-	public String keyIndexNew;
 
 	public String getTerminalId() {
 		return terminalId;
@@ -37,6 +36,14 @@ public class TerminalKey implements DataObject {
 		this.masterKey = masterKey;
 	}
 
+	public String getMasterKeyCheck() {
+		return masterKeyCheck;
+	}
+
+	public void setMasterKeyCheck(String masterKeyCheck) {
+		this.masterKeyCheck = masterKeyCheck;
+	}
+
 	public String getMacKey() {
 		return macKey;
 	}
@@ -45,12 +52,12 @@ public class TerminalKey implements DataObject {
 		this.macKey = macKey;
 	}
 
-	public String getMacKeyNew() {
-		return macKeyNew;
+	public String getMacKeyHsm() {
+		return macKeyHsm;
 	}
 
-	public void setMacKeyNew(String macKeyNew) {
-		this.macKeyNew = macKeyNew;
+	public void setMacKeyHsm(String macKeyHsm) {
+		this.macKeyHsm = macKeyHsm;
 	}
 
 	public String getPinKey() {
@@ -61,12 +68,12 @@ public class TerminalKey implements DataObject {
 		this.pinKey = pinKey;
 	}
 
-	public String getPinkeyNew() {
-		return pinkeyNew;
+	public String getPinkeyHsm() {
+		return pinkeyHsm;
 	}
 
-	public void setPinkeyNew(String pinkeyNew) {
-		this.pinkeyNew = pinkeyNew;
+	public void setPinkeyHsm(String pinkeyHsm) {
+		this.pinkeyHsm = pinkeyHsm;
 	}
 
 	public String getTraceKey() {
@@ -77,12 +84,12 @@ public class TerminalKey implements DataObject {
 		this.traceKey = traceKey;
 	}
 
-	public String getTraceKeyNew() {
-		return traceKeyNew;
+	public String getTraceKeyHsm() {
+		return traceKeyHsm;
 	}
 
-	public void setTraceKeyNew(String traceKeyNew) {
-		this.traceKeyNew = traceKeyNew;
+	public void setTraceKeyHsm(String traceKeyHsm) {
+		this.traceKeyHsm = traceKeyHsm;
 	}
 
 	public String getKeyIndex() {
@@ -92,21 +99,4 @@ public class TerminalKey implements DataObject {
 	public void setKeyIndex(String keyIndex) {
 		this.keyIndex = keyIndex;
 	}
-
-	public String getKeyIndexNew() {
-		return keyIndexNew;
-	}
-
-	public void setKeyIndexNew(String keyIndexNew) {
-		this.keyIndexNew = keyIndexNew;
-	}
-	
-	public String getKeyCheck() {
-		return masterKeyCheck;
-	}
-
-	public void setKeyCheck(String masterKeyCheck) {
-		this.masterKeyCheck = masterKeyCheck;
-	}
-
 }

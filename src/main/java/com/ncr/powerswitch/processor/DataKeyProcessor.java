@@ -16,7 +16,7 @@ import com.ncr.powerswitch.hsm.HSMCommand_C047;
 import com.ncr.powerswitch.hsm.HSMCommand_C049;
 import com.ncr.powerswitch.hsm.HSMCommand_D106;
 import com.ncr.powerswitch.hsm.HSMSocketClient;
-import com.ncr.powerswitch.persistIntf.HsmKeyTableMapper;
+import com.ncr.powerswitch.persistIntf.EppTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 import com.ncr.powerswitch.utils.FormatUtil;

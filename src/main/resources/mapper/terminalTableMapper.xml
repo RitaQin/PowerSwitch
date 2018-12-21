@@ -3,12 +3,12 @@
 <!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
 <mapper namespace="com.ncr.powerswitch.persistIntf.TerminalTableMapper">
 	<select id="getAllTerminals" resultType="com.ncr.powerswitch.dataObject.Terminal">
-		SELECT * from TERMINALTABLE
+		SELECT * from PV_SYS_TERMINAL
 	</select>
 	<select id="getTerminalIdList" resultType="string">
-		SELECT TERMINALID from TERMINALTABLE
+		SELECT TERMINALID from PV_SYS_TERMINAL
 	</select>
 	<select id="getTerminalById" parameterType="string" resultType="com.ncr.powerswitch.dataObject.Terminal">
-		SELECT * from TERMINALTABLE WHERE TERMINALID = #{terminalId}
+		SELECT * from PV_SYS_TERMINAL WHERE TERMINALID = #{terminalId}
 	</select>
 </mapper>
