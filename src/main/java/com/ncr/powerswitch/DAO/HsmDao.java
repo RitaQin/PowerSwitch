@@ -1,7 +1,10 @@
 package com.ncr.powerswitch.DAO;
 
+import java.util.List;
 import java.util.Map;
 
+import com.ncr.powerswitch.dataObject.EppKey;
+import com.ncr.powerswitch.dataObject.Terminal;
 import com.ncr.powerswitch.dataObject.TerminalKey;
 import com.ncr.powerswitch.persistIntf.SqlMapperIntf;
 
@@ -53,5 +56,21 @@ public interface HsmDao {
 	 * @return
 	 */
 	int updateTerminalEPPID(String strTerminalID,String eppId);
+	
+	/**
+	 * 根据终端号查找对应EppKey对象
+	 * @param strTerminalID 端机号
+	 * @param eppId EPPID
+	 * @return
+	 */
+	EppKey getEppInfoByTerminalId(String terminalId); 
+	
+	
+	/**
+	 * 根据终端号查找Master Key
+	 * @param terminalId
+	 * @return
+	 */
+	String getMasterKeyByTerminalId(String terminalId); 
 
 }

@@ -9,9 +9,9 @@ package com.ncr.powerswitch.dataObject;
 
 public class EppKey implements DataObject {
 
-	public int eppid;
+	public long eppid;
 	public String eppName;
-	public String mfgCompanyId;
+	public long mfgCompanyId;
 	public String r1;
 	public String keyIndex;
 	public String mLength;
@@ -23,21 +23,21 @@ public class EppKey implements DataObject {
 	public String bankPK;
 	public String skLen;
 	public String sk;
-	public String bankPKSignLen;
-	public String bankSign;
-	public String manuSignBankLen;
-	public String manuSignBank;
-	public String manuPKLen;
-	public String manuPK;
-	public String mPKSignLen;
-	public String mPKSign;
+	public String bankPkSignatureLength;
+	public String bankPkSignature;
+	public String manuSignatureBankLength;
+	public String manuSignatureBank;
+	public String manuPkLength;
+	public String manupk;
+	public String mpkSignatureLength;
+	public String mpkSignature;
 	public String hashType;
 
-	public int getEppid() {
+	public long getEppid() {
 		return eppid;
 	}
 
-	public void setEppid(int eppid) {
+	public void setEppid(long eppid) {
 		this.eppid = eppid;
 	}
 
@@ -49,11 +49,11 @@ public class EppKey implements DataObject {
 		this.eppName = eppName;
 	}
 
-	public String getMfgCompanyId() {
+	public long getMfgCompanyId() {
 		return mfgCompanyId;
 	}
 
-	public void setMfgCompanyId(String mfgCompanyId) {
+	public void setMfgCompanyId(long mfgCompanyId) {
 		this.mfgCompanyId = mfgCompanyId;
 	}
 
@@ -145,68 +145,68 @@ public class EppKey implements DataObject {
 		this.sk = sk;
 	}
 
-	public String getBankPKSignLen() {
-		return bankPKSignLen;
+	public String getBankPkSignatureLength() {
+		return bankPkSignatureLength;
 	}
 
-	public void setBankPKSignLen(String bankPKSignLen) {
-		this.bankPKSignLen = bankPKSignLen;
+	public void setBankPkSignatureLength(String bankPkSignatureLength) {
+		this.bankPkSignatureLength = bankPkSignatureLength;
 	}
 
-	public String getBankSign() {
-		return bankSign;
+	public String getBankPkSignature() {
+		return bankPkSignature;
 	}
 
-	public void setBankSign(String bankSign) {
-		this.bankSign = bankSign;
+	public void setBankPkSignature(String bankPkSignature) {
+		this.bankPkSignature = bankPkSignature;
 	}
 
-	public String getManuSignBankLen() {
-		return manuSignBankLen;
+	public String getManuSignatureBankLength() {
+		return manuSignatureBankLength;
 	}
 
-	public void setManuSignBankLen(String manuSignBankLen) {
-		this.manuSignBankLen = manuSignBankLen;
+	public void setManuSignatureBankLength(String manuSignatureBankLength) {
+		this.manuSignatureBankLength = manuSignatureBankLength;
 	}
 
-	public String getManuSignBank() {
-		return manuSignBank;
+	public String getManuSignatureBank() {
+		return manuSignatureBank;
 	}
 
-	public void setManuSignBank(String manuSignBank) {
-		this.manuSignBank = manuSignBank;
+	public void setManuSignatureBank(String manuSignatureBank) {
+		this.manuSignatureBank = manuSignatureBank;
 	}
 
-	public String getManuPKLen() {
-		return manuPKLen;
+	public String getManuPkLength() {
+		return manuPkLength;
 	}
 
-	public void setManuPKLen(String manuPKLen) {
-		this.manuPKLen = manuPKLen;
+	public void setManuPkLength(String manuPkLength) {
+		this.manuPkLength = manuPkLength;
 	}
 
-	public String getManuPK() {
-		return manuPK;
+	public String getManupk() {
+		return manupk;
 	}
 
-	public void setManuPK(String manuPK) {
-		this.manuPK = manuPK;
+	public void setManupk(String manupk) {
+		this.manupk = manupk;
 	}
 
-	public String getmPKSignLen() {
-		return mPKSignLen;
+	public String getMpkSignatureLength() {
+		return mpkSignatureLength;
 	}
 
-	public void setmPKSignLen(String mPKSignLen) {
-		this.mPKSignLen = mPKSignLen;
+	public void setMpkSignatureLength(String mpkSignatureLength) {
+		this.mpkSignatureLength = mpkSignatureLength;
 	}
 
-	public String getmPKSign() {
-		return mPKSign;
+	public String getMpkSignature() {
+		return mpkSignature;
 	}
 
-	public void setmPKSign(String mPKSign) {
-		this.mPKSign = mPKSign;
+	public void setMpkSignature(String mpkSignature) {
+		this.mpkSignature = mpkSignature;
 	}
 
 	public String getHashType() {
@@ -216,4 +216,5 @@ public class EppKey implements DataObject {
 	public void setHashType(String hashType) {
 		this.hashType = hashType;
 	}
+
 }

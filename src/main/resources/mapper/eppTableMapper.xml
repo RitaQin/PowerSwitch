@@ -3,13 +3,13 @@
 <!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
 <mapper namespace="com.ncr.powerswitch.persistIntf.EppTableMapper">
 	<select id="getEppKeySetByManu" parameterType="string" resultType="com.ncr.powerswitch.dataObject.EppKey">
-		SELECT * FROM PV_SYS_EPP WHEN MFGCOMPANYID = #{manu}
+		SELECT * FROM PV_SYS_EPP WHERE MFGCOMPANYID = #{manu}
 	</select>
 	<select id="getEppKeySetByEppId" parameterType="string" resultType="com.ncr.powerswitch.dataObject.EppKey">
-		SELECT * FROM PV_SYS_EPP WHEN EPPID = #{epp}
+		SELECT * FROM PV_SYS_EPP WHERE EPPID = #{eppId}
 	</select>
 	<select id="getEppKeySetByManuAndEppId" resultType="com.ncr.powerswitch.dataObject.EppKey">
-		SELECT * FROM PV_SYS_EPP WHEN MFGCOMPANYID = #{0} AND EPPID = #{1}
+		SELECT * FROM PV_SYS_EPP WHERE MFGCOMPANYID = #{0} AND EPPID = #{1}
 	</select>
 		<select id="getAllEppKey" resultType="com.ncr.powerswitch.dataObject.EppKey">
 		SELECT * FROM PV_SYS_EPP 

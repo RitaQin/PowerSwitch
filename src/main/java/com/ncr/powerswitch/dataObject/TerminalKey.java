@@ -15,7 +15,7 @@ public class TerminalKey implements DataObject {
 	public String macKey;
 	public String macKeyHsm;
 	public String pinKey;
-	public String pinkeyHsm;
+	public String pinKeyHsm;
 	public String traceKey;
 	public String traceKeyHsm;
 	public String keyIndex;
@@ -69,11 +69,11 @@ public class TerminalKey implements DataObject {
 	}
 
 	public String getPinkeyHsm() {
-		return pinkeyHsm;
+		return pinKeyHsm;
 	}
 
 	public void setPinkeyHsm(String pinkeyHsm) {
-		this.pinkeyHsm = pinkeyHsm;
+		this.pinKeyHsm = pinkeyHsm;
 	}
 
 	public String getTraceKey() {
