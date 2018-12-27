@@ -8,13 +8,16 @@
 	<select id="getTerminalKeyByTerminalId" parameterType="string" resultType="com.ncr.powerswitch.dataObject.TerminalKey">
 		SELECT * FROM PV_SYS_TERMINALKEY WHERE TERMINALID = #{terminalId}
 	</select>
-	<insert id="insertMasterKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
-		INSERT INTO PV_SYS_TERMINALKEY(TERMINALID, MASTERKEY, MASTERKEYCHECK) VALUES (#{terminalId},#{masterKey},
-		#{masterKeyCheck})
+	<insert id="addTerminalKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
+		INSERT INTO PV_SYS_TERMINALKEY(TERMINALID, MASTERKEY, MASTERKEYCHECK, MACKEY, MACKEYNEW,PINKEY, PINKEYNEW,
+		TRACEKEY, TRACEKEYNEW, KEYINDEX, KEYINDEXNEW) VALUES (#{terminalId},#{masterKey},
+		#{masterKeyCheck},#{macKey},#{macKeyNew},#{pinKey},#{pinKeyNew},#{traceKey},#{traceKeyNew},
+		#{keyIndex},#{keyIndexNew})
 	</insert>
 	<update id="updateTerminalKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
-		UPDATE PV_SYS_TERMINALKEY SET MACKEY=#{macKey},MACKEYHSM=#{macKeyHsm},PINKEY=#{pinKey},PINKEYHSM=#{pinKeyHsm},
-		TRACEKEY=#{traceKey},TRACEKEYHSM=#{traceKeyHsm},KEYINDEX=#{keyIndex}
+		UPDATE PV_SYS_TERMINALKEY SET MASTERKEY=#{masterKey},MASTERKEYCHECK=#{masterKeyCheck},
+		MACKEY=#{macKey},MACKEYNEW=#{macKeyNew},PINKEY=#{pinKey},PINKEYNEW=#{pinKeyNew},
+		TRACEKEY=#{traceKey},TRACEKEYNEW=#{traceKeyNew},KEYINDEX=#{keyIndex},KEYINDEXNEW=#{keyIndexNew} 
 		WHERE TERMINALID=#{terminalId}
 	</update>
 </mapper>

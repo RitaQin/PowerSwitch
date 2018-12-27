@@ -114,7 +114,7 @@ public class RequestHeaderProcessor implements BaseProcessor {
 		long snowId = generator.nextId();
 		
 		Map<String, Object> requestMap = new HashMap<String, Object>();
-		requestMap.putAll(head);
+		
 		if (body != null && body.size() > 0) {
 			requestMap.putAll(body);
 		}

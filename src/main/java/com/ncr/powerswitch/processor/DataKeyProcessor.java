@@ -10,7 +10,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 import com.ncr.powerswitch.DAO.HsmDao;
 import com.ncr.powerswitch.DAO.HsmDaoImpl;
-import com.ncr.powerswitch.dataObject.EppKey;
 import com.ncr.powerswitch.dataObject.TerminalKey;
 import com.ncr.powerswitch.hsm.HSMCommand_C046;
 import com.ncr.powerswitch.hsm.HSMCommand_C047;
@@ -21,32 +20,26 @@ import com.ncr.powerswitch.persistIntf.EppTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 import com.ncr.powerswitch.utils.FormatUtil;
-import com.ncr.powerswitch.utils.ResponseCode;
+import com.ncr.powerswitch.utils.TestUtil;
 
 public class DataKeyProcessor implements BaseProcessor {
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		CamelContext context = exchange.getContext();
+		/*CamelContext context = exchange.getContext();
 		SqlSessionFactory sessionFactory = (SqlSessionFactory) context.getRegistry().lookupByName("sqlSessionFactory");
 		SqlSession session = sessionFactory.openSession();
-		EppTableMapper hsmMapper = session.getMapper(EppTableMapper.class);
+		HsmKeyTableMapper hsmMapper = session.getMapper(HsmKeyTableMapper.class);
 		TerminalKeyTableMapper tkMapper = session.getMapper(TerminalKeyTableMapper.class);
 		TerminalTableMapper termMapper = session.getMapper(TerminalTableMapper.class);
 		
 		HsmDao hsmDao = new HsmDaoImpl(hsmMapper, tkMapper, termMapper);
-		
-		TerminalKey terminalKey = new TerminalKey(); 
+		TerminalKey terminalKey = new TerminalKey(); */
 		@SuppressWarnings("unchecked")
 		Map<String, Object> requestMap = exchange.getIn().getBody(Map.class);
 		
-		Map<String, String> inputMap = new HashMap<String, String>();
-		System.out.println(requestMap);
-		EppKey eppInfo = hsmDao.getEppInfoByTerminalId(requestMap.get("terminalId").toString());
-		String vendorKey = eppInfo.getManupk();
-		inputMap.put("MANUPK", vendorKey);
-		inputMap.put("MANUPKLENGTH", Integer.toString(vendorKey.length()));
+		Map<String, String> inputMap = TestUtil.loadKeyData();
 		inputMap.put("strEppPublicKey", requestMap.get("eppPublicKey").toString());
 		inputMap.put("strEppPublicKeySign", requestMap.get("eppPublicKeySign").toString());
 		System.out.println("Starting command C047");
@@ -76,10 +69,10 @@ public class DataKeyProcessor implements BaseProcessor {
 			if (returnMsg.length() == 52 && returnMsg.substring(0, 2).equals("41")) {
 				masterKey = returnMsg.substring(4, 36);
 				System.out.println("Master Key is " + masterKey);
-				terminalKey.setMasterKey(masterKey);
+				//terminalKey.setMasterKey(masterKey);
 				checkCode = returnMsg.substring(36, 52);
-				terminalKey.setMasterKeyCheck(checkCode);
-				hsmDao.insertMasterKey(terminalKey);
+				//terminalKey.setKeyCheck(checkCode);
+				//hsmDao.insertMasterKey(terminalKey);
 
 			} else {
 				exchange.getOut().setBody("D106格式未通过验证  " + returnMsg);
@@ -87,14 +80,7 @@ public class DataKeyProcessor implements BaseProcessor {
 		} else {
 			exchange.getOut().setBody("D106 未返回随机密钥");
 		}
-	
 
-		terminalKey.setTerminalId(requestMap.get("terminalId").toString());
-		terminalKey.setMasterKey(masterKey);
-		terminalKey.setMasterKeyCheck(checkCode);
-		hsmDao.insertMasterKey(terminalKey);
-		
-		
 		System.out.println("Starting Command C049");
 		inputMap.put("KEY_TEXT", masterKey);
 		inputMap.put("userReservedStr", "0000000000000000");
@@ -117,13 +103,12 @@ public class DataKeyProcessor implements BaseProcessor {
 		}
 
 		System.out.println("Starting Command C046");
-		String sk = eppInfo.getSk();
+		String sk = TestUtil.BANK_PRIVATE_KEY;
 		inputMap.put("SK", sk);
 		inputMap.put("encryption", encryptedMk);
 		HSMCommand_C046 c046 = new HSMCommand_C046(inputMap);
 		String c046Msg = c046.packageInputField();
 		String encryptSign = null;
-		
 		String c046Res = HSMSocketClient.sendAndReceivePacket(c046Msg, "8.99.9.91", "3000", false);
 		if (c046Res != null && c046Res.substring(0, 2).equals("41")) {
 			System.out.println("C046 密文簽名： " + c046Res.substring(22, c046Res.length()));
@@ -133,28 +118,20 @@ public class DataKeyProcessor implements BaseProcessor {
 			exchange.getOut().setBody("C046未通過");
 		}
 		
-		
-		Map<String, Object> head = new HashMap<String, Object>(); 
-		head.put("channelId", requestMap.get("channelId"));
-		head.put("transactionCode", requestMap.get("transactionCode"));
-		head.put("terminalId", requestMap.get("terminalId"));
-		head.put("channelId", requestMap.get("channelId"));
-		head.put("traceNumber", requestMap.get("traceNumber"));
-		head.put("transactionDate", requestMap.get("transactionDate"));
-		head.put("transactionTime", requestMap.get("transactionTime"));
-		head.put("responseCode", ResponseCode.RESPONSE_SUCCESS);
-		
-		Map<String, Object> body = new HashMap<String, Object>();
-		body.put("MasterKeyCypher", encryptedMk);
-		body.put("MasterKeyCypherSign",encryptSign);
-		body.put("MasterKeyCheckCode", checkCode);
-		body.put("BankPublicKey", eppInfo.getBankPK());
-		body.put("BankPublicKeySign", eppInfo.getBankPkSignature());
-		
-		Map<String, Object> retJsonMap = new HashMap<String, Object>(); 
-		retJsonMap.put("head", head); 
-		retJsonMap.put("body", body);
+		Map<String, Object> returnMap = new HashMap<String, Object>();
+		returnMap.put("channelId", requestMap.get("channelId"));
+		returnMap.put("transactionCode", requestMap.get("transactionCode"));
+		returnMap.put("terminalId", requestMap.get("terminalId"));
+		returnMap.put("channelId", requestMap.get("channelId"));
+		returnMap.put("traceNumber", requestMap.get("traceNumber"));
+		returnMap.put("transactionDate", requestMap.get("transactionDate"));
+		returnMap.put("transactionTime", requestMap.get("transactionTime"));
+		returnMap.put("MasterKeyCypher", encryptedMk);
+		returnMap.put("MasterKeyCypherSign",encryptSign);
+		returnMap.put("MasterKeyCheckCode", checkCode);
+		TestUtil.setMasterKey(masterKey);
+
 		// 构造JSON并放入上下文
-		exchange.getOut().setBody(FormatUtil.map2Json(retJsonMap));
+		exchange.getOut().setBody(FormatUtil.map2Json(returnMap));
 	}
 }

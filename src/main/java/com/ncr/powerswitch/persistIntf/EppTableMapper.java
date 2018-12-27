@@ -23,6 +23,5 @@ public interface EppTableMapper extends SqlMapperIntf {
 
 	//返回所有Epp相关密钥
 	public List<EppKey> getAllEppKey();
-	
 
 }

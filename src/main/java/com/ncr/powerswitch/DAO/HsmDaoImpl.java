@@ -1,9 +1,7 @@
 package com.ncr.powerswitch.DAO;
 
-import java.util.List;
 import java.util.Map;
 
-import com.ncr.powerswitch.dataObject.EppKey;
 import com.ncr.powerswitch.dataObject.Terminal;
 import com.ncr.powerswitch.dataObject.TerminalKey;
 import com.ncr.powerswitch.persistIntf.EppTableMapper;
@@ -11,15 +9,15 @@ import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
 import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 
 public class HsmDaoImpl implements HsmDao {
-
-	private EppTableMapper eppMapper;
-	private TerminalKeyTableMapper tkMapper;
-	private TerminalTableMapper termMapper;
-
-	public HsmDaoImpl(EppTableMapper eppMapper, TerminalKeyTableMapper tkMapper, TerminalTableMapper termMapper) {
-		this.eppMapper = eppMapper;
-		this.tkMapper = tkMapper;
-		this.termMapper = termMapper;
+	
+	private EppTableMapper hsmMapper; 
+	private TerminalKeyTableMapper tkMapper; 
+	private TerminalTableMapper termMapper; 
+	
+	public HsmDaoImpl(EppTableMapper hsmMapper, TerminalKeyTableMapper tkMapper, TerminalTableMapper termMapper ) {
+		this.hsmMapper = hsmMapper; 
+		this.tkMapper = tkMapper; 
+		this.termMapper = termMapper;	
 	}
 
 	@Override
@@ -38,26 +36,20 @@ public class HsmDaoImpl implements HsmDao {
 			return 3;
 		} catch (Exception e) {
 			e.printStackTrace();
-			// 验证报错
-			return 4;
+			//验证报错
+			return 4; 
 		}
 	}
 
 	@Override
 	public Map<String, Object> findManufacturerByIPAndTerminalID(String ip, String terminalId) {
-
+		
 		return null;
 	}
 
 	@Override
 	public boolean updateTerminalKey(TerminalKey terminalKey) {
-		try {
-			tkMapper.updateTerminalKey(terminalKey); 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return false;
-		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -75,31 +67,12 @@ public class HsmDaoImpl implements HsmDao {
 	@Override
 	public boolean insertMasterKey(TerminalKey terminalKey) {
 		try {
-			tkMapper.insertMasterKey(terminalKey);
-		} catch (Exception e) {
+			tkMapper.addTerminalKey(terminalKey);
+		} catch(Exception e) {
 			e.printStackTrace();
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public String getMasterKeyByTerminalId(String terminalId) {
-		TerminalKey tk = tkMapper.getTerminalKeyByTerminalId(terminalId); 
-		return tk.getMasterKey();
-	}
-
-	@Override
-	public EppKey getEppInfoByTerminalId(String terminalId) {
-		try {
-			Terminal term = termMapper.getTerminalById(terminalId);
-			String eppid = term.getEpp();
-			EppKey eppkey = eppMapper.getEppKeySetByEppId(eppid); 
-			return eppkey;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 }

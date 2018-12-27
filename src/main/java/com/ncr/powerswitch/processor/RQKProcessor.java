@@ -3,22 +3,12 @@ package com.ncr.powerswitch.processor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 
 import com.ncr.powerswitch.hsm.HSMCommand_D107;
-import com.ncr.powerswitch.DAO.HsmDao;
-import com.ncr.powerswitch.DAO.HsmDaoImpl;
-import com.ncr.powerswitch.dataObject.TerminalKey;
 import com.ncr.powerswitch.hsm.HSMCommand_D104;
 import com.ncr.powerswitch.hsm.HSMSocketClient;
-import com.ncr.powerswitch.persistIntf.EppTableMapper;
-import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
-import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 import com.ncr.powerswitch.utils.FormatUtil;
-import com.ncr.powerswitch.utils.ResponseCode;
 import com.ncr.powerswitch.utils.TestUtil;
 
 /**
@@ -45,60 +35,23 @@ public class RQKProcessor implements BaseProcessor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
-		CamelContext context = exchange.getContext();
-		SqlSessionFactory sessionFactory = (SqlSessionFactory) context.getRegistry().lookupByName("sqlSessionFactory");
-		SqlSession session = sessionFactory.openSession();
-		EppTableMapper hsmMapper = session.getMapper(EppTableMapper.class);
-		TerminalKeyTableMapper tkMapper = session.getMapper(TerminalKeyTableMapper.class);
-		TerminalTableMapper termMapper = session.getMapper(TerminalTableMapper.class);
-		
-		HsmDao hsmDao = new HsmDaoImpl(hsmMapper, tkMapper, termMapper);
-		
 		@SuppressWarnings("unchecked")
 		Map<String, Object> requestMap =  exchange.getIn().getBody(Map.class);
-		Map<String, Object> body = new HashMap<String, Object>();
-		TerminalKey terminalKey = new TerminalKey(); 
-		terminalKey.setTerminalId(requestMap.get("terminalId").toString());
+		System.out.println("master Key is: " + TestUtil.MASTERKEY);
 		
-		String masterkey = hsmDao.getMasterKeyByTerminalId(requestMap.get("terminalId").toString());
-		Map<String, String> pinKeySet = obtainWorkKeySets( masterkey, "HSM_KEYTYPE_PIN");
-		body.put("pinKey", pinKeySet.get("keyByTsf"));
-		body.put("pinKeyCheck", pinKeySet.get("checkVal"));
-		terminalKey.setPinKey(pinKeySet.get("keyByTsf"));
-		terminalKey.setPinkeyHsm(pinKeySet.get("keyByHost"));
+		Map<String, String> pinKeySet = obtainWorkKeySets( TestUtil.MASTERKEY, "HSM_KEYTYPE_PIN");
+		requestMap.put("pinKey", pinKeySet.get("keyByTsf"));
+		requestMap.put("pinKeyCheck", pinKeySet.get("checkVal"));
 		
-		Map<String, String> traceKeySet = obtainWorkKeySets( masterkey, "HSM_KEYTYPE_TRACE");
-		body.put("traceKey", traceKeySet.get("keyByTsf"));
-		body.put("traceKeyCheck", traceKeySet.get("checkVal"));
-		terminalKey.setTraceKey(traceKeySet.get("keyByTsf"));
-		terminalKey.setTraceKeyHsm(traceKeySet.get("keyByHost"));
+		Map<String, String> traceKeySet = obtainWorkKeySets( TestUtil.MASTERKEY, "HSM_KEYTYPE_TRACE");
+		requestMap.put("traceKey", traceKeySet.get("keyByTsf"));
+		requestMap.put("traceKeyCheck", traceKeySet.get("checkVal"));
 		
-		Map<String, String> macKeySet = obtainWorkKeySets( masterkey, "HSM_KEYTYPE_MAC");
-		body.put("macKey", macKeySet.get("keyByTsf"));
-		body.put("macKeyCheck", macKeySet.get("checkVal"));
-		terminalKey.setMacKey(macKeySet.get("keyByTsf"));
-		terminalKey.setMacKeyHsm(macKeySet.get("keyByHost"));
-		terminalKey.setKeyIndex("0110");
+		Map<String, String> macKeySet = obtainWorkKeySets( TestUtil.MASTERKEY, "HSM_KEYTYPE_MAC");
+		requestMap.put("macKey", macKeySet.get("keyByTsf"));
+		requestMap.put("macKeyCheck", macKeySet.get("checkVal"));
 		
-		if (!hsmDao.updateTerminalKey(terminalKey)) {
-			exchange.getOut().setBody("updating terminal key failed..");
-		}
-		
-		Map<String, Object> head = new HashMap<String, Object>(); 
-		head.put("channelId", requestMap.get("channelId"));
-		head.put("transactionCode", requestMap.get("transactionCode"));
-		head.put("terminalId", requestMap.get("terminalId"));
-		head.put("channelId", requestMap.get("channelId"));
-		head.put("traceNumber", requestMap.get("traceNumber"));
-		head.put("transactionDate", requestMap.get("transactionDate"));
-		head.put("transactionTime", requestMap.get("transactionTime"));
-		head.put("responseCode", ResponseCode.RESPONSE_SUCCESS);
-		
-		Map<String, Object> retJsonMap = new HashMap<String, Object>();
-		retJsonMap.put("head", head);
-		retJsonMap.put("body", body);
-		
-		exchange.getOut().setBody(FormatUtil.map2Json(retJsonMap));	
+		exchange.getOut().setBody(FormatUtil.map2Json(requestMap));	
 	}
 	
 	private Map<String, String> obtainWorkKeySets(String masterKey, String keyType) throws Exception{
