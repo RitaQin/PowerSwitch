@@ -45,6 +45,12 @@
 			<artifactId>camel-jms</artifactId>
 			<version>${env.camel.version}</version>
 		</dependency>
+		<!-- TCP Connection -->
+		<dependency>
+   	 		<groupId>org.apache.camel</groupId>
+    		<artifactId>camel-mina2</artifactId>
+    		<version>${env.camel.version}</version>
+		</dependency>
 		<!-- XML解析 -->
 		<dependency>
     		<groupId>xstream</groupId>
