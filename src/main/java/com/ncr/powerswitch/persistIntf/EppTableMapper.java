@@ -5,24 +5,26 @@ import java.util.List;
 import com.ncr.powerswitch.dataObject.EppKey;
 
 /**
- * PV_SYS_EPP TABLEÏà¹Ø²Ù×÷
+ * PV_SYS_EPP TABLEï¿½ï¿½Ø²ï¿½ï¿½ï¿½
  * @author rq185015
  *
  */
 
 public interface EppTableMapper extends SqlMapperIntf {
 	
-	//Í¨¹ı³§ÉÌÃû²éÕÒEppÏà¹ØÃÜÔ¿
 	public EppKey getEppKeySetByManu(String manu);
 
-	//Í¨¹ıEppId ²éÕÒEppÏà¹ØÃÜÔ¿
+	
 	public EppKey getEppKeySetByEppId(String eppId);
 
-	//Í¨¹ı³§ÉÌÃûºÍEpp²éÕÒHsmÏà¹ØÃÜÔ¿
+	//Í¨æ ¹æ®å‚å•†å’ŒEppé”®ç›˜åºå·è·å–å¯†ç é”®ç›˜ä¿¡æ¯
 	public EppKey getEppKeySetByManuAndEppId(String manu, String eppId);
 
-	//·µ»ØËùÓĞEppÏà¹ØÃÜÔ¿
+	//è¿”å›æ‰€æœ‰ç§ç±»çš„å¯†ç é”®ç›˜ä¿¡æ¯
 	public List<EppKey> getAllEppKey();
+	
+	//è¿”å›ç»ˆç«¯è®¾å¤‡çš„å¯†é’¥é”®ç›˜ä¿¡æ¯
+	public EppKey getEppKeySetByTerminalId(String terminalId);
 	
 
 }

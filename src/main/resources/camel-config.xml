@@ -6,6 +6,9 @@
     <!-- 导入数据库操作相关配置 -->
     <import resource="mybatis-config.xml"/>
     <import resource="persistence-config.xml"/>
+    
+    <bean id="byteArrayCodecFactory" class="com.ncr.powerswitch.codec.ByteArrayCodecFactory" />
+    
     <!-- 设置atmp接收请求的URL -->
     <bean id="RestletComponent" class="org.restlet.Component" ></bean>
     <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent"> 
@@ -13,30 +16,262 @@
     </bean>
     <!-- 属性文件 -->
     <bean id="jdbcProperties" class="org.apache.camel.component.properties.PropertiesComponent"> 
-		<property name="location" value="classpath:jdbc.properties"/></bean>
+		<property name="location" value="classpath:jdbc.properties"/>
+	</bean>
 	<bean id="log4jProperties" class="org.apache.camel.component.properties.PropertiesComponent"> 
-		<property name="location" value="classpath:log4j.properties"/></bean>
+		<property name="location" value="classpath:log4j.properties"/>
+	</bean>
+	<bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
+		<property name="location" value="classpath:hsm.properties"/>
+	</bean>
+	
     <!-- 测试用 -->
-  	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
-  	<bean id="rklProcess" class="com.ncr.powerswitch.processor.DataKeyProcessor"></bean>
-  	<bean id="rqkProcess" class="com.ncr.powerswitch.processor.RQKProcessor"></bean>
+  	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"/>
+  	
+  	<bean id="rklProcess" class="com.ncr.powerswitch.processor.DataKeyProcessor"/>
+  	<bean id="rqkProcess" class="com.ncr.powerswitch.processor.RQKProcessor"/>
+  	
+  	<bean id="EsbQt04Process" class="com.ncr.powerswitch.processor.EsbQt04Processor"/>
+  	
+  	<bean id="RqkProcessorNew" class="com.ncr.powerswitch.processor.RqkProcessorNew"/>
+  	<bean id="RklProcessorNew" class="com.ncr.powerswitch.processor.RklProcessorNew"/>
+  	
+  	<bean id="RqkNewProcessor" class="com.ncr.powerswitch.processor.RqkNewProcessor"/>
+  	<bean id="RqkNewProcessorTest" class="com.ncr.powerswitch.processor.RqkNewProcessorTest"/>
+  	
+  	<bean id="RklNewProcessor" class="com.ncr.powerswitch.processor.RklNewProcessor"/>
+  	
+  	<bean id="UtilProcessor" class="com.ncr.powerswitch.processor.UtilProcessor"/>
+  	
   	<!-- 业务处理 -->
-  	<bean id="header-verification" class=" com.ncr.powerswitch.processor.RequestHeaderProcessor"></bean>
-  	<bean id="rkl" class="com.ncr.powerswitch.processor.RKLProcessor"></bean>
+  	<bean id="header-verification" class=" com.ncr.powerswitch.processor.RequestHeaderProcessor"/>
+  	<bean id="rkl" class="com.ncr.powerswitch.processor.RKLProcessor"/>
+  	
+  	
+
 	<camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
 		<route id="echoPowerSwitch">
 			<from uri="restlet:/echo"/>
 			<process ref="echo"/>
 		</route>
 		<route id="rkl">
-				<from uri="restlet:/rkl/?restletMethods=POST"/>
-				<process ref="header-verification"/>
-					<process ref="rklProcess"></process>
+			<from uri="restlet:/rkl/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<process ref="rklProcess"/>
 		</route>
 		<route id="rqk">
-				<from uri="restlet:/rqk/?restletMethods=POST"/>
-				<process ref="header-verification"/>
-					<process ref="rqkProcess"></process>
+			<from uri="restlet:/rqk/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<process ref="rqkProcess"/>
 		</route>
+		
+		<route id="rkl2">
+			<from uri="restlet:/rkl2/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<bean ref="RklProcessorNew" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getEppKeySetByTerminalId?statementType=SelectOne"/>
+			
+			<bean ref="RklProcessorNew" method="storeEppKeyProcess"/>
+			
+			<bean ref="RklProcessorNew" method="requestHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklProcessorNew" method="requestHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklProcessorNew" method="insertTerminalKeyProcess"/>
+			<to uri="mybatis:insertMasterKey?statementType=Insert"/>
+			
+			<bean ref="RklProcessorNew" method="requestHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklProcessorNew" method="requestHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklProcessorNew" method="responseRklProcess"/>			
+		</route>	
+		
+		<route id="rkl3">
+			<from uri="restlet:/rkl3/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<bean ref="RklNewProcessor" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getEppKeySetByTerminalId?statementType=SelectOne"/>
+			
+			<bean ref="RklNewProcessor" method="storeEppKeyProcess"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RklNewProcessor" method="responseHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RklNewProcessor" method="responseHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="insertTerminalKeyProcess"/>
+			<to uri="mybatis:insertMasterKey?statementType=Insert"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RklNewProcessor" method="responseHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RklNewProcessor" method="responseHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="responseRklProcess"/>			
+		</route>
+		
+		<route id="rqk2">
+			<from uri="restlet:/rqk2/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<bean ref="RqkProcessorNew" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
+			<bean ref="RqkProcessorNew" method="storeMasterkeyProcess"/>
+			
+			<bean ref="RqkProcessorNew" method="requestHsmD107Process(*,'HSM_KEYTYPE_PIN',{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RqkProcessorNew" method="requestHsmD104Process(*,'HSM_KEYTYPE_PIN',{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RqkProcessorNew" method="requestHsmD107Process(*,'HSM_KEYTYPE_MAC',{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RqkProcessorNew" method="requestHsmD104Process(*,'HSM_KEYTYPE_MAC',{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RqkProcessorNew" method="requestHsmD107Process(*,'HSM_KEYTYPE_TRACE',{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RqkProcessorNew" method="requestHsmD104Process(*,'HSM_KEYTYPE_TRACE',{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RqkProcessorNew" method="updateTerminalKeyProcess"/>
+			<to uri="mybatis:updateTerminalKey?statementType=Update"/>
+			<bean ref="RqkProcessorNew" method="responseTerminalKeyProcess"/>
+		</route>
+		
+		
+		<route id="rqk3">
+			<from uri="restlet:/rqk3/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<bean ref="RqkNewProcessor" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
+			<bean ref="RqkNewProcessor" method="storeMasterkeyProcess"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD107Process(*,'HSM_KEYTYPE_PIN')"/>
+			<to uri="direct:hsmD107"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD107Process(*,'HSM_KEYTYPE_PIN')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD104Process(*,'HSM_KEYTYPE_PIN')"/>
+			<to uri="direct:hsmD104"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD104Process(*,'HSM_KEYTYPE_PIN')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD107Process(*,'HSM_KEYTYPE_MAC')"/>
+			<to uri="direct:hsmD107"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD107Process(*,'HSM_KEYTYPE_MAC')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD104Process(*,'HSM_KEYTYPE_MAC')"/>
+			<to uri="direct:hsmD104"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD104Process(*,'HSM_KEYTYPE_MAC')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD107Process(*,'HSM_KEYTYPE_TRACE')"/>
+			<to uri="direct:hsmD107"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD107Process(*,'HSM_KEYTYPE_TRACE')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD104Process(*,'HSM_KEYTYPE_TRACE')"/>
+			<to uri="direct:hsmD104"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD104Process(*,'HSM_KEYTYPE_TRACE')"/>
+			
+			<bean ref="RqkNewProcessor" method="updateTerminalKeyProcess"/>
+			<to uri="mybatis:updateTerminalKey?statementType=Update"/>
+			<bean ref="RqkNewProcessor" method="responseTerminalKeyProcess"/>
+		</route>
+		
+		<route id="D107_test">
+			<from uri="mina2:tcp://localhost:58107?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RqkNewProcessorTest" method="responseD107"/>
+		</route>
+		<route id="D104_test">
+			<from uri="mina2:tcp://localhost:58104?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RqkNewProcessorTest" method="responseD104"/>
+		</route>
+		
+		<route id="qt04">
+			<from uri="restlet:/qt04/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+				
+			<bean ref="EsbQt04Process" method="beforeMybatisProcess"/>
+			<to uri="mybatis:getTerminalById?statementType=SelectOne"/>
+			<bean ref="EsbQt04Process" method="afterMybatisProcess"/>
+
+			<bean ref="EsbQt04Process" method="formatProcess"/>
+			<to uri="mina2:tcp://localhost:12008?textline=true"/>
+			<bean ref="EsbQt04Process" method="deformatProcess"/>
+		</route>
+		
+		<route id="qt04Test">
+			<from uri="mina2:tcp://localhost:12008?textline=true"/>
+			<bean ref="EsbQt04Process" method="testProcess"/>
+		</route>
+		
+		<!-- <errorHandler id="HsmErrorHandler" type="DefaultErrorHandler"> 
+			<redeliveryPolicy maximumRedeliveries="2" 
+					retryAttemptedLogLevel="WARN" 
+					backOffMultiplier="2" 
+					useExponentialBackOff="true"/>
+		</errorHandler> -->
+		
+		
+		
+		<route id="hsmD107" errorHandlerRef="HsmErrorHandler">
+			<from uri="direct:hsmD107"/>
+			<!-- <bean ref="UtilProcessor" method="httpToHsm"/> -->
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<!-- <bean ref="UtilProcessor" method="hsmToHttp"/> -->
+		</route>
+		
+		<route id="hsmD106" errorHandlerRef="HsmErrorHandler">
+			<from uri="direct:hsmD106"/>
+			<!-- <bean ref="UtilProcessor" method="httpToHsm"/> -->
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<!-- <bean ref="UtilProcessor" method="hsmToHttp"/> -->
+		</route>
+		
+		<route id="hsmD104" errorHandlerRef="HsmErrorHandler">
+			<from uri="direct:hsmD104"/>
+			<!-- <bean ref="UtilProcessor" method="httpToHsm"/> -->
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<!-- <bean ref="UtilProcessor" method="hsmToHttp"/> -->
+		</route>
+		
+		<route id="hsmC049" errorHandlerRef="HsmErrorHandler">
+			<from uri="direct:hsmC049"/>
+			<!-- <bean ref="UtilProcessor" method="httpToHsm"/> -->
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<!-- <bean ref="UtilProcessor" method="hsmToHttp"/> -->
+		</route>
+		
+		<route id="hsmC047" errorHandlerRef="HsmErrorHandler">
+			<from uri="direct:hsmC047"/>
+			<!-- <bean ref="UtilProcessor" method="httpToHsm"/> -->
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<!-- <bean ref="UtilProcessor" method="hsmToHttp"/> -->
+		</route>
+		
+		<route id="hsmC046" errorHandlerRef="HsmErrorHandler">
+			<from uri="direct:hsmC046"/>
+			<!-- <bean ref="UtilProcessor" method="httpToHsm"/> -->
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<!-- <bean ref="UtilProcessor" method="hsmToHttp"/> -->
+		</route>
+		
+		
+		
 	</camelContext>
+	
+	<bean id="HsmErrorHandler" class="org.apache.camel.builder.DeadLetterChannelBuilder">
+        <property name="redeliveryPolicy" ref="rsRedeliveryPolicyConfig"/>
+        <property name="deadLetterUri" value="direct:hsmD107"/> 
+    </bean>
+
+    <bean id="rsRedeliveryPolicyConfig" class="org.apache.camel.processor.RedeliveryPolicy">
+        <property name="maximumRedeliveries" value="2"/>
+        <property name="retryAttemptedLogLevel" value="WARN"/>
+		<property name="backOffMultiplier" value="2" />
+		<property name="useExponentialBackOff" value="true"/>
+    </bean>
+	
+	
 </beans>
+  <!-- END SNIPPET: e1 -->

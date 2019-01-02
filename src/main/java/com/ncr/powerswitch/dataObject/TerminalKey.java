@@ -19,7 +19,8 @@ public class TerminalKey implements DataObject {
 	public String traceKey;
 	public String traceKeyHsm;
 	public String keyIndex;
-
+	public int count;
+	
 	public String getTerminalId() {
 		return terminalId;
 	}
@@ -98,5 +99,19 @@ public class TerminalKey implements DataObject {
 
 	public void setKeyIndex(String keyIndex) {
 		this.keyIndex = keyIndex;
+	}
+
+	/**
+	 * @return the count
+	 */
+	public int getCount() {
+		return count;
+	}
+
+	/**
+	 * @param count the count to set
+	 */
+	public void setCount(int count) {
+		this.count = count;
 	}
 }

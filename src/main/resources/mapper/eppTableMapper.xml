@@ -14,4 +14,7 @@
 		<select id="getAllEppKey" resultType="com.ncr.powerswitch.dataObject.EppKey">
 		SELECT * FROM PV_SYS_EPP 
 	</select>
+	<select id="getEppKeySetByTerminalId" resultType="com.ncr.powerswitch.dataObject.EppKey">
+		SELECT PV_SYS_EPP.* FROM PV_SYS_EPP INNER JOIN PV_SYS_TERMINAL ON PV_SYS_EPP.EPPID=PV_SYS_TERMINAL.EPP WHERE PV_SYS_TERMINAL.TERMINALID = #{terminalId} 
+	</select>
 </mapper>

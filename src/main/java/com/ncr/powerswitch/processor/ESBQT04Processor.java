@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.XStreamEx;
 
+import com.ncr.powerswitch.dataObject.Terminal;
 import com.ncr.powerswitch.esb.ESB_QT04;
 import com.ncr.powerswitch.esb.model.AppHead_QT04;
 import com.ncr.powerswitch.esb.model.Body_QT04;
@@ -25,12 +26,12 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  *
  */
 
-public class ESBQT04Processor {
+public class EsbQt04Processor {
 
 	/**
 	 * Log4j记录日志的工具类
 	 */
-	private final static Log log = LogFactory.getLog(ESBQT04Processor.class);	
+	private final static Log log = LogFactory.getLog(EsbQt04Processor.class);	
 
 	public void formatProcess(Exchange exchange) throws Exception{		
 		@SuppressWarnings("unchecked")
@@ -90,15 +91,15 @@ public class ESBQT04Processor {
 		exchange.getOut().setBody(retmsg);		
 	}
 	
-//	public void beforeMybatisProcess(Exchange exchange) throws Exception{		
-//		Map<String, Object> requestMap =  exchange.getIn().getBody(Map.class);
-//		exchange.getProperties().put("channelId", requestMap.get("channelId"));			
-//		exchange.getOut().setBody(requestMap.get("terminalId"));		
-//	}
-//	
-//	public void afterMybatisProcess(Exchange exchange) throws Exception{		
-//		Terminal terminal =  exchange.getIn().getBody(Terminal.class);			
-//		exchange.getOut().setBody(terminal.terminalId);		
-//	}	
+	public void beforeMybatisProcess(Exchange exchange) throws Exception{		
+		Map<String, Object> requestMap =  exchange.getIn().getBody(Map.class);
+		exchange.getProperties().put("channelId", requestMap.get("channelId"));			
+		exchange.getOut().setBody(requestMap.get("terminalId"));		
+	}
+	
+	public void afterMybatisProcess(Exchange exchange) throws Exception{		
+		Terminal terminal =  exchange.getIn().getBody(Terminal.class);			
+		exchange.getOut().setBody(terminal.terminalId);		
+	}	
 
 }

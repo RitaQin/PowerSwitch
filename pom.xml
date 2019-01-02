@@ -8,6 +8,7 @@
 	<packaging>war</packaging>
 	<properties>
 		<env.camel.version>2.13.2</env.camel.version>
+		<!-- <env.camel.version>2.14.2</env.camel.version> -->
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<restlet.version>2.1.7</restlet.version>
@@ -20,6 +21,11 @@
 		</repository>
 	</repositories>   
 	<dependencies>
+		<dependency>
+        	<groupId>com.oracle</groupId>
+        	<artifactId>ojdbc14</artifactId>
+        	<version>10.2.0.4.0</version>
+		</dependency>
 		<dependency>
         	<groupId>org.restlet.jee</groupId>
         	<artifactId>org.restlet.ext.spring</artifactId>
@@ -45,12 +51,32 @@
 			<artifactId>camel-jms</artifactId>
 			<version>${env.camel.version}</version>
 		</dependency>
-		<!-- TCP Connection -->
+		<!--  
 		<dependency>
-   	 		<groupId>org.apache.camel</groupId>
-    		<artifactId>camel-mina2</artifactId>
-    		<version>${env.camel.version}</version>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-netty4</artifactId>
+		    <version>${env.camel.version}</version>
 		</dependency>
+		-->
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-mina2</artifactId>
+		    <version>${env.camel.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-mybatis</artifactId>
+		    <version>${env.camel.version}</version>
+		</dependency>
+		
+		<!-- For trace -->
+		<dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+                
 		<!-- XML解析 -->
 		<dependency>
     		<groupId>xstream</groupId>
@@ -83,6 +109,7 @@
 			<artifactId>commons-pool</artifactId>
 			<version>1.4</version>
 		</dependency>
+		
 		<!-- mybatis -->
         <dependency>
             <groupId>org.mybatis</groupId>
