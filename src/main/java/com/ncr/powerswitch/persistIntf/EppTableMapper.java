@@ -5,7 +5,7 @@ import java.util.List;
 import com.ncr.powerswitch.dataObject.EppKey;
 
 /**
- * PV_SYS_EPP TABLE��ز���
+ * PV_SYS_EPP TABLE操作相关类
  * @author rq185015
  *
  */

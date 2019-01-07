@@ -5,23 +5,23 @@ import java.util.List;
 
 import com.ncr.powerswitch.dataObject.TerminalKey;
 /**
- * HOSTKEYTABLEÏà¹Ø²Ù×÷
+ * HOSTKEYTABLEæ“ä½œç›¸å…³ç±»
  * @author rq185015
  *
  */
 
 public interface TerminalKeyTableMapper extends SqlMapperIntf {
 	
-	//·µ»ØËùÓĞµÄÖÕ¶ËºÅ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğµï¿½ï¿½Õ¶Ëºï¿½
 	public List<String> getTerminalsIds(); 
 	
-	//ÓÃterminalIdËÑË÷key 
+	//ï¿½ï¿½terminalIdï¿½ï¿½ï¿½ï¿½key 
 	public TerminalKey getTerminalKeyByTerminalId(String terminalId);
 	
-	//Ôö¼ÓÒ»¸öĞÂµÄÖÕ¶ËÃÜÔ¿ĞÅÏ¢
+	//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Âµï¿½ï¿½Õ¶ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Ï¢
 	public void insertMasterKey(TerminalKey terminalKey);
 	
-	//¸üĞÂÒ»¸öÖÕ¶ËÃÜÔ¿ĞÅÏ¢
+	//ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Õ¶ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Ï¢
 	public void updateTerminalKey(TerminalKey terminalKey);
 
 }

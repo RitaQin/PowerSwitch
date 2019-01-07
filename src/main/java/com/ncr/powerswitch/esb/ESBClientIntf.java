@@ -5,31 +5,20 @@ import java.util.Map;
 public interface ESBClientIntf {
 	
 	/**
-	 * Éú³É¶ÔÓ¦½Ó¿Ú±¨ÎÄ
+	 * ï¿½ï¿½ï¿½É¶ï¿½Ó¦ï¿½Ó¿Ú±ï¿½ï¿½ï¿½
 	 * 
-	 * @param ÇëÇóĞÅÏ¢map
-	 * @return xml±¨ÎÄ
+	 * @param ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢map
+	 * @return xmlï¿½ï¿½ï¿½ï¿½
 	 */
 	String constructRequest(Map<String, String> requestMap);
 	
 	/**
-	 * ·¢ËÍºÍ½ÓÊÕESB½Ó¿Ú±¨ÎÄ
+	 * ï¿½ï¿½Ö¤ï¿½ï¿½esbï¿½ï¿½ï¿½ØµÄ±ï¿½ï¿½ï¿½
 	 * 
-	 * @param msg ÖÕ¶ËºÅ
-	 * @param ip  ipµØÖ·
-	 * @param port ¶Ë¿ÚºÅ
-	 * @param unpack
-	 * @return ·µ»Ø±¨ÎÄ
-	 */
-	 String sendAndReceivePackets(String msg, String ip, String port, boolean unpack);
-	
-	/**
-	 * ÑéÖ¤ÓÉesb·µ»ØµÄ±¨ÎÄ
-	 * 
-	 * @param Ïòesb·¢ËÍµÄÇëÇó
-	 * @param esb»Ø¸´µÄ±¨ÎÄ
-	 * @param ĞèÒªÑéÖ¤µÄÓò
-	 * @return ÑéÖ¤½á¹û boolean
+	 * @param ï¿½ï¿½esbï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½ï¿½ï¿½
+	 * @param esbï¿½Ø¸ï¿½ï¿½Ä±ï¿½ï¿½ï¿½
+	 * @param ï¿½ï¿½Òªï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½
+	 * @return ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ boolean
 	 */
 	 boolean verifyResMessage(String msg, String receivedMsg, String[] verifyFields);
 }

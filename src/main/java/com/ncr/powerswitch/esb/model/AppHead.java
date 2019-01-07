@@ -1,8 +1,6 @@
 package com.ncr.powerswitch.esb.model;
 
-import java.util.List;
-
-public class AppHead_QT04 {
+public class AppHead {
 	
 	private String TranTellerNo;
 	private String TranBranchId;

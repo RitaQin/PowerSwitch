@@ -5,30 +5,30 @@ import java.util.List;
 import com.ncr.powerswitch.dataObject.Terminal;
 
 /**
- * TERMINALTABLEÏà¹Ø²Ù×÷
+ * TERMINALTABLEæ“ä½œç›¸å…³ç±»
  * @author rq185015
  *
  */
 
 public interface TerminalTableMapper extends SqlMapperIntf {
 	
-	//·µ»ØËùÓĞÖÕ¶ËĞÅÏ¢
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¶ï¿½ï¿½ï¿½Ï¢
 	public List<Terminal> getAllTerminals();
 	
-	//·µ»ØËùÓĞÖÕ¶ËºÅ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¶Ëºï¿½
 	public List<String> getTerminalIdList(); 
 	
-	//¸ù¾İÖÕ¶ËºÅ·µ»ØÖÕ¶ËĞÅÏ¢
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Õ¶ËºÅ·ï¿½ï¿½ï¿½ï¿½Õ¶ï¿½ï¿½ï¿½Ï¢
 	public Terminal getTerminalById(String terminalId);
 	
 	/**
-	//Ôö¼ÓĞÂµÄÖÕ¶Ë
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½Õ¶ï¿½
 	public void addTerminal(Terminal newTerminal);
 	
-	//É¾³ıÖÕ¶Ë
+	//É¾ï¿½ï¿½ï¿½Õ¶ï¿½
 	public void deleteTerminal(String terminalId);
 	
-	//¸üĞÂÖÕ¶Ë
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Õ¶ï¿½
 	public void updateTerminal(Terminal updatedTerminal);
 	**/
 

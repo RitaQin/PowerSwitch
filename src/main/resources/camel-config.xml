@@ -32,6 +32,7 @@
   	<bean id="rqkProcess" class="com.ncr.powerswitch.processor.RQKProcessor"/>
   	
   	<bean id="EsbQt04Process" class="com.ncr.powerswitch.processor.EsbQt04Processor"/>
+  	<bean id="EsbAc51Process" class="com.ncr.powerswitch.processor.EsbAc51Processor"/>
   	
   	<bean id="RqkProcessorNew" class="com.ncr.powerswitch.processor.RqkProcessorNew"/>
   	<bean id="RklProcessorNew" class="com.ncr.powerswitch.processor.RklProcessorNew"/>
@@ -203,6 +204,14 @@
 		<route id="qt04Test">
 			<from uri="mina2:tcp://localhost:12008?textline=true"/>
 			<bean ref="EsbQt04Process" method="testProcess"/>
+		</route>
+		
+		<route id="ac51">
+			<from uri="restlet:/ac51/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<bean ref="EsbAc51Process" method="formatProcess" />
+			<to uri="mina2:tcp://localhost:8088?codec=#byteArrayCodecFactory"/>
+			<bean ref="EsbAc51Process" method="deformatProcess"/>
 		</route>
 		
 		<!-- <errorHandler id="HsmErrorHandler" type="DefaultErrorHandler"> 

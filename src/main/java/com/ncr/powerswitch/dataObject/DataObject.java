@@ -1,7 +1,7 @@
 package com.ncr.powerswitch.dataObject;
 
 /**
- * ËùÓĞÊı¾İ¶ÔÏóĞèÒª¼Ì³Ğ´ËÀà
+ *	æ•°æ®ç±»æ¥å£
  * @author rq185015
  *
  */

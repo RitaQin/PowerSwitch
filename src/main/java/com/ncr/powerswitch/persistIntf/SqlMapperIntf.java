@@ -1,7 +1,7 @@
 package com.ncr.powerswitch.persistIntf;
 
 /**
- * 所有Mapper都要继承这个接口
+ * Mapper鎺ュ彛
  * @author rq185015
  *
  */

@@ -1,6 +1,6 @@
 package com.ncr.powerswitch.esb.model;
 
-public class Ret_QT04 {
+public class EsbRet {
 	private String ReturnCode;
 	private String ReturnMsg;
 	

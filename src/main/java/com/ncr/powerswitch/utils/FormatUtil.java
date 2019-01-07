@@ -12,45 +12,45 @@ import com.thoughtworks.xstream.XStream;
 
 /***
  * 格式转化辅助类
+ * 
  * @author rq185015
  *
  */
 
 public class FormatUtil {
-	
-	//Json字符转Map
+
+	// Json字符转Map
 	public static Map<String, Object> json2Map(String json) {
-		Map<String, Object> resultMap = new Gson()
-				.fromJson(json, new TypeToken<HashMap<String, Object>>() {
+		Map<String, Object> resultMap = new Gson().fromJson(json, new TypeToken<HashMap<String, Object>>() {
 		}.getType());
-		
+
 		return resultMap;
 	}
-	
-	//map转json字符
+
+	// map转json字符
 	public static String map2Json(Map<String, Object> jsonMap) {
-		String json = new Gson().toJson(jsonMap);	
-		return json; 
+		String json = new Gson().toJson(jsonMap);
+		return json;
 	}
-	
-	//将map转成xml字符串
+
+	// 将map转成xml字符串
 	public static String map2Xml(Map<String, String> xmlMap) {
-		 XStream xstream = new XStream();
-		 xstream.alias("map", java.util.Map.class);
-		 String xml = xstream.toXML(xmlMap);
+		XStream xstream = new XStream();
+		xstream.alias("map", java.util.Map.class);
+		String xml = xstream.toXML(xmlMap);
 		return xml;
 	}
-	
-	//将xml字符串转成map
+
+	// 将xml字符串转成map
 	public static Map<String, String> xml2Map(String xml) {
 		XStream xstream = new XStream();
 		xstream.alias("map", java.util.Map.class);
-	    @SuppressWarnings("unchecked")
-	    Map<String, String> xmlMap = (Map<String, String>) xstream.fromXML(xml);
+		@SuppressWarnings("unchecked")
+		Map<String, String> xmlMap = (Map<String, String>) xstream.fromXML(xml);
 		return xmlMap;
 	}
-	
-	//stream转字符串
+
+	// stream转字符串
 	public static String stream2Str(InputStream bodyStream) throws IOException {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		byte[] contextBytes = new byte[4096];
@@ -64,10 +64,24 @@ public class FormatUtil {
 			outStream.close();
 		}
 	}
-	
-	//byte转字符串
+
+	// byte转字符串
 	public static String byteArray2Str(byte[] b) {
 		return new String(b);
 	}
-	
+
+	public static int bytes2int(byte[] bytes) {
+		
+		int integer = Integer.parseInt(byteArray2Str(bytes)); 
+		
+		return integer;
+	}
+
+	public static byte[] int2bytes(int num) {
+		byte[] b = new byte[4];
+		for (int i = 0; i < 4; i++) {
+			b[i] = (byte) (num >>> (24 - i * 8));
+		}
+		return b;
+	}
 }

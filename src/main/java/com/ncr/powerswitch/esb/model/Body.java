@@ -1,6 +1,6 @@
 package com.ncr.powerswitch.esb.model;
 
-public class Body_QT04 {
+public class Body {
 	
 	private String TxnAmt;
 	private String DbAcgSbjNo;

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -12,12 +13,12 @@ import com.ncr.powerswitch.utils.XStreamEx;
 
 import com.ncr.powerswitch.dataObject.Terminal;
 import com.ncr.powerswitch.esb.ESB_QT04;
-import com.ncr.powerswitch.esb.model.AppHead_QT04;
-import com.ncr.powerswitch.esb.model.Body_QT04;
-import com.ncr.powerswitch.esb.model.LocalHead_QT04;
-import com.ncr.powerswitch.esb.model.Ret_QT04;
-import com.ncr.powerswitch.esb.model.SysHead_QT04;
-import com.ncr.powerswitch.esb.model.service_QT04;
+import com.ncr.powerswitch.esb.model.AppHead;
+import com.ncr.powerswitch.esb.model.Body;
+import com.ncr.powerswitch.esb.model.LocalHead;
+import com.ncr.powerswitch.esb.model.EsbRet;
+import com.ncr.powerswitch.esb.model.SysHead;
+import com.ncr.powerswitch.esb.model.EsbService;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 /***
@@ -26,7 +27,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
  *
  */
 
-public class EsbQt04Processor {
+public class EsbQt04Processor implements Processor {
 
 	/**
 	 * Log4j记录日志的工具类
@@ -51,13 +52,13 @@ public class EsbQt04Processor {
 	public void deformatProcess(Exchange exchange) throws Exception{
 		
 		XStreamEx  xstream = new XStreamEx(new DomDriver("utf-8"));
-		xstream.alias("service", service_QT04.class);
-		xstream.alias("SYS_HEAD", SysHead_QT04.class);
-		xstream.alias("Ret", Ret_QT04.class);
-		xstream.alias("APP_HEAD", AppHead_QT04.class);
-		xstream.alias("LOCAL_HEAD", LocalHead_QT04.class);
-		xstream.alias("BODY", Body_QT04.class);
-		service_QT04 esbMsg = (service_QT04) xstream.fromXML(exchange.getIn().getBody(String.class));
+		xstream.alias("service", EsbService.class);
+		xstream.alias("SYS_HEAD", SysHead.class);
+		xstream.alias("Ret", EsbRet.class);
+		xstream.alias("APP_HEAD", AppHead.class);
+		xstream.alias("LOCAL_HEAD", LocalHead.class);
+		xstream.alias("BODY", Body.class);
+		EsbService esbMsg = (EsbService) xstream.fromXML(exchange.getIn().getBody(String.class));
 		
 		Map<String, Object> head = new HashMap<String, Object>(); 
 		
@@ -100,6 +101,11 @@ public class EsbQt04Processor {
 	public void afterMybatisProcess(Exchange exchange) throws Exception{		
 		Terminal terminal =  exchange.getIn().getBody(Terminal.class);			
 		exchange.getOut().setBody(terminal.terminalId);		
+	}
+
+	@Override
+	public void process(Exchange exchange) throws Exception {
+		
 	}	
 
 }

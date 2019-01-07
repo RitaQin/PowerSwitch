@@ -1,6 +1,6 @@
 package com.ncr.powerswitch.esb.model;
 
-public class LocalHead_QT04 {
+public class LocalHead {
 	
 	private String TranCode;
 	private String SendCardPeriod;

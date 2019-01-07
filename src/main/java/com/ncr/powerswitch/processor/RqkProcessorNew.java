@@ -3,40 +3,30 @@ package com.ncr.powerswitch.processor;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 
 import com.ncr.powerswitch.hsm.HSMCommand_D107;
-import com.ncr.powerswitch.DAO.HsmDao;
-import com.ncr.powerswitch.DAO.HsmDaoImpl;
 import com.ncr.powerswitch.dataObject.TerminalKey;
 import com.ncr.powerswitch.hsm.HSMCommand_D104;
 import com.ncr.powerswitch.hsm.HSMSocketClient;
-import com.ncr.powerswitch.persistIntf.EppTableMapper;
-import com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper;
-import com.ncr.powerswitch.persistIntf.TerminalTableMapper;
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.ResponseCode;
-import com.ncr.powerswitch.utils.StringUtil;
-import com.ncr.powerswitch.utils.TestUtil;
 
-import com.ncr.powerswitch.dataObject.TerminalKey;
+
 /**
- * ��ɹ�����Կ
- * ÿ̨�ն˶�Ӧ3�鹤����Կ
+ * 锟斤拷晒锟斤拷锟斤拷锟皆�
+ * 每台锟秸端讹拷应3锟介工锟斤拷锟斤拷钥
  * MACKEY MACKEYNEW
  * PINKEY PINKEYNEW
  * TRACEKEY TRACEKEYNEW 
  * 
  * 
  * STEPS: 
- * 1. ���MACKEY  - D107
- * 2. ��MACKEY����ת���ܣ�����0110) -D104
- * 3. ��ת���ܺ������MACKEY������ݿ⣬MASTERKEY���ܺ��MAC�����ն�
+ * 1. 锟斤拷锟組ACKEY  - D107
+ * 2. 锟斤拷MACKEY锟斤拷锟斤拷转锟斤拷锟杰ｏ拷锟斤拷锟斤拷0110) -D104
+ * 3. 锟斤拷转锟斤拷锟杰猴拷锟斤拷锟斤拷锟組ACKEY锟斤拷锟斤拷锟斤拷菘猓琈ASTERKEY锟斤拷锟杰猴拷锟組AC锟斤拷锟斤拷锟秸讹拷
  * 
- * �ظ����ϲ����ȡ����PINKEY��TRACEKEY 
+ * 锟截革拷锟斤拷锟较诧拷锟斤拷锟饺★拷锟斤拷锟絇INKEY锟斤拷TRACEKEY 
  *  
  * @author rq185015
  *

@@ -2,7 +2,7 @@ package com.ncr.powerswitch.esb.model;
 
 import java.util.List;
 
-public class SysHead_QT04 {
+public class SysHead {
 	private String ServiceCode;
 	private String ServiceScene;
 	private String ConsumerId;
@@ -15,7 +15,7 @@ public class SysHead_QT04 {
 	private String TranTime;
 	private String ServSeqNo;
 	private String ReturnStatus;
-	private List<Ret_QT04> array; 
+	private List<EsbRet> array; 
 	private String TerminalCode;
 	private String OrgTerminalCode;
 	private String ConsumerSvrId;
@@ -174,13 +174,13 @@ public class SysHead_QT04 {
 	/**
 	 * @return the array
 	 */
-	public List<Ret_QT04> getArray() {
+	public List<EsbRet> getArray() {
 		return array;
 	}
 	/**
 	 * @param array the array to set
 	 */
-	public void setArray(List<Ret_QT04> array) {
+	public void setArray(List<EsbRet> array) {
 		this.array = array;
 	}
 	/**

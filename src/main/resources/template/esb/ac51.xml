@@ -1,7 +1,7 @@
 <service>
   <SYS_HEAD>
-    <ServiceCode>12001000001</ServiceCode> <!-- 固定 -->
-    <ServiceScene>06</ServiceScene> <!-- 固定 -->
+    <ServiceCode>12001000001</ServiceCode>
+    <ServiceScene>06</ServiceScene>
     <ConsumerId>${consumerId}</ConsumerId>
     <ConsumerSeqNo>${consumerSeqNo}</ConsumerSeqNo>
     <OrgConsumerSeqNo>${orgConsumerSeqNo}</OrgConsumerSeqNo>
@@ -13,12 +13,12 @@
     <TranTellerNo>${tranTellerNo}</TranTellerNo>
   </APP_HEAD>
   <LOCAL_HEAD>
-    <TranCode>AC51</TranCode> <!-- 固定  -->
+    <TranCode>AC51</TranCode>
   </LOCAL_HEAD>
   <BODY>
-    <Amt1 /> <!-- 空，用TxnAmt替代  -->
+    <Amt1 />
     <PcdFee>${pcdFee}</PcdFee>
-    <PwdChkFlg>${pwdChkFlg}</PwdChkFlg> <!-- N不校验 否则校验 -->
+    <PwdChkFlg>${pwdChkFlg}</PwdChkFlg>
     <BranchId>${branchId}</BranchId>
     <DbAcctNo>${dbAcctNo}</DbAcctNo>
     <CnlInd>${cnlInd}</CnlInd> 
@@ -41,7 +41,7 @@
     <DbSubAcctOrdrNo>${dbSubAcctOrdrNo}</DbSubAcctOrdrNo>
     <AgrmNo>${agrmNo}</AgrmNo>
     <VchrNo>${vchrNo}</VchrNo>
-    <PcdFeeCashTfrFlg>${pcdFeeCasTfrFlg</PcdFeeCashTfrFlg>
+    <PcdFeeCashTfrFlg>${pcdFeeCasTfrFlg}</PcdFeeCashTfrFlg>
     <OppAcctNo>${oppAcctNo}</OppAcctNo>
     <VchrTp>${vchrTp}</VchrTp>
     <IssuDt>${issuDt}</IssuDt>
