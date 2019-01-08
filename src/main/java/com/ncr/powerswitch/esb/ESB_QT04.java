@@ -24,7 +24,7 @@ public class ESB_QT04 {
 
 	public String constructRequest(Map<String, Object> requestValues) {
 		String templatePath = "/template/esb/";
-		String templateFileName = "QT04SBS.xml";
+		String templateFileName = "qt04.xml";
 		String requestXml = "";
 
 		Configuration config = new Configuration();

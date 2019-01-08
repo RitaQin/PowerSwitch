@@ -20,16 +20,19 @@ public class ByteArrayDecoder extends CumulativeProtocolDecoder {
 			byte[] sizeBytes = new byte[8];
 			in.mark();
 			in.get(sizeBytes);
-			int len = FormatUtil.bytes2int(sizeBytes);
+			int len = FormatUtil.bytes2int(sizeBytes) + 8; //前8个字节不算在长度内
 			in.reset();
+			if (len == 0) {
+				return true;
+			}
 			if (in.remaining() < len) {
 				return false;
 			} else {
 				byte[] dataBytes = new byte[len];
 				in.get(dataBytes, 0, len);
 				out.write(dataBytes);
-
 				if (in.remaining() >= 0) {
+					System.out.println("Codec length: " + len);
 					return true;
 				}
 			}

@@ -38,6 +38,12 @@
         <property name="markerInterface" value="com.ncr.powerswitch.persistIntf.SqlMapperIntf" />
     </bean> 
     
+    <!-- 配置CamelMybatis -->
+	<bean id="mybatis" class="org.apache.camel.component.mybatis.MyBatisComponent">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="configurationUri" value="classpath:mybatis-config.xml"></property>
+	</bean>
+
     <!-- 事务管理器配置,单数据源事务
     <bean id="transactionManager"
         class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

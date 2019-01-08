@@ -15,6 +15,7 @@ import com.ncr.powerswitch.esb.model.EsbRet;
 import com.ncr.powerswitch.esb.model.SysHead;
 import com.ncr.powerswitch.esb.model.EsbService;
 import com.ncr.powerswitch.utils.FormatUtil;
+import com.ncr.powerswitch.utils.GeneralUtil;
 import com.ncr.powerswitch.utils.XStreamEx;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
@@ -37,12 +38,18 @@ public class EsbAc51Processor implements BaseProcessor {
 
 		ESB_AC51 ac51 = new ESB_AC51();
 		String ac51Text = ac51.constructRequest(requestMap);
-		exchange.getOut().setBody(ac51Text.getBytes());
+		StringBuffer ac51Buffer = new StringBuffer(); 
+		ac51Buffer.append("000000000000000000000000000000000000000000000000"); //mac key + mac value 000 for testing
+		ac51Buffer.append(ac51Text);
+		String length = GeneralUtil.generatePayloadLength(ac51Buffer.toString());
+		byte[] ac51Bytes = length.concat(ac51Buffer.toString()).getBytes();
+		exchange.getOut().setBody(ac51Bytes);
 	}
 
 	public void deformatProcess(Exchange exchange) throws Exception {
-		String esb_ret = exchange.getIn().getBody(String.class);
-		esb_ret = esb_ret.substring(8);
+		String esb_ret = FormatUtil.byteArray2Str(exchange.getIn().getBody(byte[].class));
+		System.out.println("received msg: " + esb_ret);
+		esb_ret = esb_ret.substring(56);
 		System.out.println("esb return is: " + esb_ret);
 		XStreamEx  xstream = new XStreamEx(new DomDriver("utf-8"));
 		xstream.alias("service", EsbService.class);
