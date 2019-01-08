@@ -33,7 +33,7 @@ public class ESB_QT04 {
 			// Template template=config.getTemplate(templateFileName);
 
 			config.setClassForTemplateLoading(this.getClass(), "/");
-			Template template = config.getTemplate(templatePath.concat(templateFileName), "UTF-8");// ����ģ��
+			Template template = config.getTemplate(templatePath.concat(templateFileName), "UTF-8");
 
 			Map<String, Object> context = new HashMap<String, Object>();
 

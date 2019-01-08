@@ -4,6 +4,10 @@
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
     
+    <bean id="NormalProcessor" class="com.ncr.powerswitch.processor.NormalProcessor"/>
+    <bean id="MacProcessor" class="com.ncr.powerswitch.processor.MacVerificationProcessor"/>
+    
+    
     <bean id="RklNewProcessor" class="com.ncr.powerswitch.processor.RklNewProcessor"/>
     <bean id="RqkNewProcessor" class="com.ncr.powerswitch.processor.RqkNewProcessor"/>
   	<bean id="RqkNewProcessorTest" class="com.ncr.powerswitch.processor.RqkNewProcessorTest"/>
@@ -46,14 +50,10 @@
 			<bean ref="RklNewProcessor" method="storeEppKeyProcess"/>
 			
 			<bean ref="RklNewProcessor" method="requestHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
-			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
-			 -->
 			<to uri="direct:hsmC047"/>
 			<bean ref="RklNewProcessor" method="responseHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
 			
 			<bean ref="RklNewProcessor" method="requestHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
-			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
-			 -->
 			<to uri="direct:hsmD106"/>
 			<bean ref="RklNewProcessor" method="responseHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
 			
@@ -61,14 +61,10 @@
 			<to uri="mybatis:insertMasterKey?statementType=Insert"/>
 			
 			<bean ref="RklNewProcessor" method="requestHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
-			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
-			 -->
 			<to uri="direct:hsmC049"/>
 			<bean ref="RklNewProcessor" method="responseHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
 			
 			<bean ref="RklNewProcessor" method="requestHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
-			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
-			 -->
 			<to uri="direct:hsmC046"/>
 			<bean ref="RklNewProcessor" method="responseHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
 			
@@ -118,6 +114,56 @@
 			<bean ref="RqkNewProcessor" method="updateTerminalKeyProcess"/>
 			<to uri="mybatis:updateTerminalKey?statementType=Update"/>
 			<bean ref="RqkNewProcessor" method="responseTerminalKeyProcess"/>
+		</route>
+		
+		<route id="createMac">
+			<from uri="direct:createMac"/>
+			
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="RqkNewProcessor" method="responseError"/>
+			</onException>
+
+			<bean ref="NormalProcessor" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
+			<bean ref="NormalProcessor" method="putTerminalKeyProcess"/>
+			
+			<bean ref="MacProcessor" method="requestHsmD132Process"/>
+			<to uri="direct:hsmD132"/>
+			<bean ref="MacProcessor" method="responseHsmD132Process"/>			
+		</route>
+		
+		<route id="verifyMac">
+			<from uri="direct:verifyMac"/>
+			
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="RqkNewProcessor" method="responseError"/>
+			</onException>
+
+			<bean ref="NormalProcessor" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
+			<bean ref="NormalProcessor" method="putTerminalKeyProcess"/>
+			
+			<bean ref="MacProcessor" method="requestHsmD134Process"/>
+			<to uri="direct:hsmD134"/>
+			<bean ref="MacProcessor" method="responseHsmD134Process"/>			
+		</route>
+		
+		<route id="hsmD132" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmD132"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<route id="hsmD134" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmD134"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
 		</route>
 		
 		<route id="hsmD107" errorHandlerRef="hsmErrorHandler">

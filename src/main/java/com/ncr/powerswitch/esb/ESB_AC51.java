@@ -8,13 +8,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
-import com.ncr.powerswitch.utils.GeneralUtil;
-
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-public class ESB_AC51 extends ESBClient {
+public class ESB_AC51 implements ESBClientIntf {
 
 	public ESB_AC51() {
 		super();
@@ -115,7 +113,7 @@ public class ESB_AC51 extends ESBClient {
 			log.info("AC51 Request :  " + requestXml);
 
 			if (requestXml == null || "".equals(requestXml)) {
-				log.error("濉厖妯℃澘鍑洪敊銆傛ā鏉胯矾寰勶細" + templatePath + templateFileName);
+				log.error("填充模板出错。模板路径" + templatePath + templateFileName);
 				return null;
 			}
 
@@ -134,6 +132,12 @@ public class ESB_AC51 extends ESBClient {
 
 	public void setVerifyFields(String[] verifyFields) {
 		this.verifyFields = verifyFields;
+	}
+
+	@Override
+	public boolean verifyResMessage(String msg, String receivedMsg, String[] verifyFields) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
