@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.ncr.powerswitch.persistIntf.TerminalKeyTableMapper">
+	<select id="getTerminalsIds" resultType="string">
+		SELECT TERMINALID FROM PV_SYS_TERMINALKEY
+	</select>
+	<select id="getTerminalKeyByTerminalId" parameterType="string" resultType="com.ncr.powerswitch.dataObject.TerminalKey">
+		SELECT * FROM PV_SYS_TERMINALKEY WHERE TERMINALID = #{terminalId}
+	</select>
+	<!-- 
+	<insert id="insertMasterKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
+		INSERT INTO PV_SYS_TERMINALKEY(TERMINALID, MASTERKEY, MASTERKEYCHECK) VALUES (#{terminalId},#{masterKey},
+		#{masterKeyCheck})
+	</insert>
+	 -->
+	<update id="updateTerminalKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
+		UPDATE PV_SYS_TERMINALKEY SET MACKEY=#{macKey},MACKEYHSM=#{macKeyHsm},PINKEY=#{pinKey},PINKEYHSM=#{pinKeyHsm},
+		TRACEKEY=#{traceKey},TRACEKEYHSM=#{traceKeyHsm},KEYINDEX=#{keyIndex}
+		WHERE TERMINALID=#{terminalId}
+	</update>
+	<insert id="insertMasterKey" parameterType="com.ncr.powerswitch.dataObject.TerminalKey">
+		<selectKey keyProperty="count" resultType="int" order="BEFORE">
+			SELECT COUNT(*) FROM PV_SYS_TERMINALKEY WHERE TERMINALID = #{terminalId}
+		</selectKey>
+		<if test="count>0">
+			UPDATE PV_SYS_TERMINALKEY SET MASTERKEY=#{masterKey,jdbcType=VARCHAR},
+				MASTERKEYCHECK=#{masterKeyCheck,jdbcType=VARCHAR},
+				MACKEY=#{macKey,jdbcType=VARCHAR},
+				MACKEYHSM=#{macKeyHsm,jdbcType=VARCHAR},
+				PINKEY=#{pinKey,jdbcType=VARCHAR},
+				PINKEYHSM=#{pinKeyHsm,jdbcType=VARCHAR},
+				TRACEKEY=#{traceKey,jdbcType=VARCHAR},
+				TRACEKEYHSM=#{traceKeyHsm,jdbcType=VARCHAR},
+				KEYINDEX=#{keyIndex,jdbcType=VARCHAR} 
+				WHERE TERMINALID=#{terminalId}
+		</if>
+		<if test="count==0">
+		  	INSERT INTO PV_SYS_TERMINALKEY(TERMINALID, MASTERKEY, MASTERKEYCHECK) VALUES (#{terminalId},#{masterKey},#{masterKeyCheck})
+		</if>
+	</insert>
+	
+</mapper>

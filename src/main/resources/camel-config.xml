@@ -3,21 +3,84 @@
 	xsi:schemaLocation="
        http://www.springframework.org/schema/beans classpath:/org/springframework/beans/factory/xml/spring-beans-2.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    <!-- 导入数据库操作相关配置 -->
+    <import resource="mybatis-config.xml"/>
+    <import resource="persistence-config.xml"/>
+    <import resource="hsmEncryptRoutes.xml"/>
+    
+    <bean id="byteArrayCodecFactory" class="com.ncr.powerswitch.codec.ByteArrayCodecFactory" />
+    <!-- 设置atmp接收请求的URL -->
     <bean id="RestletComponent" class="org.restlet.Component" ></bean>
     <bean id="RestletComponentService" class="org.apache.camel.component.restlet.RestletComponent"> 
      	<constructor-arg index="0"> <ref bean="RestletComponent" /> </constructor-arg> 
     </bean>
-  	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"></bean>
-  	<bean id="print" class="com.ncr.powerswitch.processor.PrintProcessor"></bean>
+    <!-- 属性文件 -->
+    <bean id="jdbcProperties" class="org.apache.camel.component.properties.PropertiesComponent"> 
+		<property name="location" value="classpath:jdbc.properties"/>
+	</bean>
+	<bean id="log4jProperties" class="org.apache.camel.component.properties.PropertiesComponent"> 
+		<property name="location" value="classpath:log4j.properties"/>
+	</bean>
+	<bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
+		<property name="location" value="classpath:connection.properties"/>
+	</bean>
+	
+    <!-- 测试用 -->
+  	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"/>
+  	
+  	<bean id="rklProcess" class="com.ncr.powerswitch.processor.DataKeyProcessor"/>
+  	<bean id="rqkProcess" class="com.ncr.powerswitch.processor.RQKProcessor"/>
+  	
+  	<bean id="EsbQt04Process" class="com.ncr.powerswitch.processor.EsbQt04Processor"/>
+  	<bean id="EsbAc51Process" class="com.ncr.powerswitch.processor.EsbAc51Processor"/>
+  	
+  	<bean id="RqkProcessorNew" class="com.ncr.powerswitch.processor.RqkProcessorNew"/>
+  	<bean id="RklProcessorNew" class="com.ncr.powerswitch.processor.RklProcessorNew"/>
+  	
+  	<!-- 业务处理 -->
+  	<bean id="header-verification" class=" com.ncr.powerswitch.processor.RequestHeaderProcessor"/>
+  	<bean id="rkl" class="com.ncr.powerswitch.processor.RKLProcessor"/>
+  	
+  	
 	<camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
+	
+		<routeContextRef ref="hsmEncryptRoutes"/>
+		
 		<route id="echoPowerSwitch">
 			<from uri="restlet:/echo"/>
 			<process ref="echo"/>
 		</route>
-		<route id="postRequest">
-			<from uri="restlet:/requests/?restletMethods=POST"/>
-			<process ref="print"/>
+		
+		<route id="qt04">
+			<from uri="restlet:/qt04/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+				
+			<bean ref="EsbQt04Process" method="beforeMybatisProcess"/>
+			<to uri="mybatis:getTerminalById?statementType=SelectOne"/>
+			<bean ref="EsbQt04Process" method="afterMybatisProcess"/>
+
+			<bean ref="EsbQt04Process" method="formatProcess"/>
+			<!-- <to uri="mina2:tcp://localhost:12008?textline=true"/>  -->
+			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?textline=true"/>
+			<bean ref="EsbQt04Process" method="deformatProcess"/>
 		</route>
-	</camelContext>
+		
+		<!--<route id="qt04Test">
+			<from uri="mina2:tcp://localhost:12008?textline=true"/> 
+			<bean ref="EsbQt04Process" method="testProcess"/> 
+		</route>	 -->
+		
+		<route id="ac51">
+			<from uri="restlet:/ac51/?restletMethods=POST"/>
+			<process ref="header-verification"/>
+			<bean ref="EsbAc51Process" method="formatProcess" />
+			<!-- <to uri="mina2:tcp://localhost:8088?codec=#byteArrayCodecFactory"/> --> 
+			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?codec=#byteArrayCodecFactory"/>
+			<bean ref="EsbAc51Process" method="deformatProcess"/>
+		</route>
+		
+		
+	</camelContext>	
+	
 </beans>
   <!-- END SNIPPET: e1 -->

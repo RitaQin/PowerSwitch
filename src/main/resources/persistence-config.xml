@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/aop 
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true"/>
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${jdbc.driver.class}" />
+        <property name="url" value="${jdbc.connection.url}" />
+        <property name="username" value="${jdbc.connection.username}" />
+        <property name="password" value="${jdbc.connection.password}" />
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+        <!-- mapper和resultmap配置路径 -->
+        <property name="mapperLocations">
+            <list> 
+                <!-- 表示在以下所有目录中，扫描以mapper.xml结尾所有文件 -->
+           		<value>classpath:mapper/*Mapper.xml</value>
+            </list>
+        </property>
+    </bean> 
+    
+    <!-- 通过扫描的模式，扫描目录在com/ncr/powerswitch/persistIntf目录下，所有的mapper都继承SqlMapper接口的接口， 这样一个bean就可以了 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.ncr.powerswitch.persistIntf" />
+        <property name="markerInterface" value="com.ncr.powerswitch.persistIntf.SqlMapperIntf" />
+    </bean> 
+    
+    <!-- 配置CamelMybatis -->
+	<bean id="mybatis" class="org.apache.camel.component.mybatis.MyBatisComponent">
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+		<property name="configurationUri" value="classpath:mybatis-config.xml"></property>
+	</bean>
+
+    <!-- 事务管理器配置,单数据源事务
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>  -->
+    
+    <!-- 配置那些类的方法进行事务管理 
+    <aop:config>
+        <aop:pointcut id="executeService"
+            expression="execution(* com.lavasoft.*.service..*(..))" />
+        <aop:advisor pointcut-ref="executeService" advice-ref="txAdvice" />
+    </aop:config>
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="select*" read-only="true" />
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="load*" read-only="true" />
+            <tx:method name="find*" read-only="true" />
+            <tx:method name="query*" read-only="true" />
+            <tx:method name="read*" read-only="true" />
+            <tx:method name="sync*" />
+            <tx:method name="*" propagation="REQUIRED" rollback-for="java.lang.Exception" />
+        </tx:attributes>
+    </tx:advice> -->
+</beans>

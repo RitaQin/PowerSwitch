@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace和定义的Mapper接口对应，并实现其中的方法 -->
+<mapper namespace="com.ncr.powerswitch.persistIntf.TerminalTableMapper">
+	<select id="getAllTerminals" resultType="com.ncr.powerswitch.dataObject.Terminal">
+		SELECT * from PV_SYS_TERMINAL
+	</select>
+	<select id="getTerminalIdList" resultType="string">
+		SELECT TERMINALID from PV_SYS_TERMINAL
+	</select>
+	<select id="getTerminalById" parameterType="string" resultType="com.ncr.powerswitch.dataObject.Terminal">
+		SELECT * from PV_SYS_TERMINAL WHERE TERMINALID = #{terminalId}
+	</select>
+</mapper>
