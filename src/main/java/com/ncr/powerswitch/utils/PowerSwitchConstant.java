@@ -70,5 +70,7 @@ public class PowerSwitchConstant {
 	public final static String TRACE_NUMBER_NULL_ERROR = "3004"; //traceNumber空
 	public final static String TRANSACTION_DATE_NULL_ERROR = "3005"; //transactionDate空
 	public final static String TRANSACTION_TIME_NULL_ERROR = "3006"; //transactionTime空
-
+	
+	//hsm
+	public final static String HSM_ERROR = "H0001"; //transactionTime空
 }

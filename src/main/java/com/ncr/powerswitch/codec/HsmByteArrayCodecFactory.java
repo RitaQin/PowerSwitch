@@ -1,10 +1,11 @@
 package com.ncr.powerswitch.codec;
 
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 
-public class HsmByteArrayCodecFactory {
+public class HsmByteArrayCodecFactory implements ProtocolCodecFactory {
 	private HsmByteArrayDecoder decoder;
 	private ByteArrayEncoder encoder;
 	

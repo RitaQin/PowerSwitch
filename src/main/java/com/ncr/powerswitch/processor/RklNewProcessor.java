@@ -7,12 +7,13 @@ import org.apache.camel.Exchange;
 
 import com.ncr.powerswitch.dataObject.EppKey;
 import com.ncr.powerswitch.dataObject.TerminalKey;
+import com.ncr.powerswitch.exception.PowerswitchException;
 import com.ncr.powerswitch.hsm.HSMCommand_C046;
 import com.ncr.powerswitch.hsm.HSMCommand_C047;
 import com.ncr.powerswitch.hsm.HSMCommand_C049;
 import com.ncr.powerswitch.hsm.HSMCommand_D106;
-import com.ncr.powerswitch.hsm.HSMSocketClient;
 import com.ncr.powerswitch.utils.FormatUtil;
+import com.ncr.powerswitch.utils.PowerSwitchConstant;
 import com.ncr.powerswitch.utils.ResponseCode;
 import com.ncr.powerswitch.utils.StringUtil;
 
@@ -56,15 +57,15 @@ public class RklNewProcessor  {
 				System.out.println("C047验证通过" + c047Res);
 			} else {
 				exchange.getOut().setBody("C047 未通过验证 " + c047Res);
+				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C047 return error, " + c047Res);
 			}
 		} else {
 			exchange.getOut().setBody("C047 未返回随机密钥");
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C047 return null.");
 		}
 	}	
 	
 	public void requestHsmD106Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		Map<String, String> inputMap = new HashMap<String, String>();		
-		
 		System.out.println("Starting command D106");
 		HSMCommand_D106 d106 = new HSMCommand_D106();
 		String d106msg = d106.packageInputField();
@@ -93,9 +94,11 @@ public class RklNewProcessor  {
 				terminalKey.setMasterKeyCheck(checkCode);
 			} else {
 				exchange.getOut().setBody("D106格式未通过验证  " + d106Res);
+				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"D106 return error, " + d106Res);
 			}
 		} else {
 			exchange.getOut().setBody("D106 未返回随机密钥");
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"D106 return null.");
 		}
 		
 		exchange.getProperties().put("TerminalKey", terminalKey);	
@@ -135,11 +138,11 @@ public class RklNewProcessor  {
 				System.out.println("C049转加密文： " + encryptedMk);
 			} else {
 				System.out.println("C049 not verified  " + c049Res);
-				exchange.getOut().setBody("C049 not verified  " + c049Res);
+				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C049 return error, " + c049Res);
 			}
 		} else {
 			System.out.println("C049 returns null");
-			exchange.getOut().setBody("C049 returns null");
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C049 return null");
 		}
 		
 		exchange.getProperties().put("encryptedMk", encryptedMk);	
@@ -173,10 +176,10 @@ public class RklNewProcessor  {
 		String encryptSign = null;		
 		if (c046Res != null && c046Res.substring(0, 2).equals("41")) {
 			System.out.println("C046 密文簽名： " + c046Res.substring(22, c046Res.length()));
-			encryptSign =  c046Res.substring(22, c046Res.length());
-			
+			encryptSign =  c046Res.substring(22, c046Res.length());			
 		} else {
 			exchange.getOut().setBody("C046未通過");
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C046 return error, " + c046Res);
 		}
 		
 		exchange.getProperties().put("encryptSign", encryptSign);	
@@ -205,5 +208,30 @@ public class RklNewProcessor  {
 		retJsonMap.put("body", body);
 		// 构造JSON并放入上下文
 		exchange.getOut().setBody(FormatUtil.map2Json(retJsonMap));	
-	}	
+	}
+	
+	public void responseError(Exchange exchange) {
+		Exception e = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);		
+		//String endPoint = exchange.getProperty(Exchange.FAILURE_ENDPOINT,String.class);
+		
+		Map<String, Object> head = new HashMap<String, Object>(); 
+		head.put("channelId", exchange.getProperties().get("channelId"));
+		head.put("transactionCode", exchange.getProperties().get("transactionCode"));
+		head.put("terminalId", exchange.getProperties().get("terminalId"));
+		head.put("channelId", exchange.getProperties().get("channelId"));
+		head.put("traceNumber", exchange.getProperties().get("traceNumber"));
+		head.put("transactionDate", exchange.getProperties().get("transactionDate"));
+		head.put("transactionTime", exchange.getProperties().get("transactionTime"));
+		head.put("responseCode", "9999");
+		
+		Map<String, Object> body = new HashMap<String, Object>();
+		body.put("errorDescription", e.getMessage());
+		body.put("errorType", e.getClass().toString());	
+		
+		Map<String, Object> retJsonMap = new HashMap<String, Object>();
+		retJsonMap.put("head", head);
+		retJsonMap.put("body", body);
+		
+		exchange.getOut().setBody(FormatUtil.map2Json(retJsonMap));	
+	}
 }

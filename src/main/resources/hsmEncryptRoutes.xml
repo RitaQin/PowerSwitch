@@ -1,0 +1,165 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    
+    <bean id="RklNewProcessor" class="com.ncr.powerswitch.processor.RklNewProcessor"/>
+    <bean id="RqkNewProcessor" class="com.ncr.powerswitch.processor.RqkNewProcessor"/>
+  	<bean id="RqkNewProcessorTest" class="com.ncr.powerswitch.processor.RqkNewProcessorTest"/>
+  	
+  	<bean id="hsmByteArrayCodec" class="com.ncr.powerswitch.codec.HsmByteArrayCodecFactory" />
+	<!-- <bean id="UtilProcessor" class="com.ncr.powerswitch.processor.UtilProcessor"/> -->
+  	  	
+  	<bean id="hsmErrorHandler" class="org.apache.camel.builder.DeadLetterChannelBuilder">
+        <property name="redeliveryPolicy" ref="rsRedeliveryPolicyConfig"/>
+        <property name="deadLetterUri" value="bean:RqkNewProcessor?method=responseError"/> 
+        
+    </bean>
+    
+    <bean id="rqkErrorHandler" class="org.apache.camel.builder.DeadLetterChannelBuilder">
+        <property name="redeliveryPolicy" ref="rsRedeliveryPolicyConfig"/>
+    </bean>
+
+    <bean id="rsRedeliveryPolicyConfig" class="org.apache.camel.processor.RedeliveryPolicy">
+        <property name="maximumRedeliveries" value="2"/>
+        <property name="retryAttemptedLogLevel" value="WARN"/>
+		<property name="backOffMultiplier" value="2" />
+		<property name="useExponentialBackOff" value="true"/>
+    </bean>
+    <routeContext id="hsmEncryptRoutes" xmlns="http://camel.apache.org/schema/spring">
+    	<route id="rkl">
+			<from uri="restlet:/rkl/?restletMethods=POST"/>
+			
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="RklNewProcessor" method="responseError"/>
+			</onException>
+			
+			<process ref="header-verification"/>
+			<bean ref="RklNewProcessor" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getEppKeySetByTerminalId?statementType=SelectOne"/>
+			
+			<bean ref="RklNewProcessor" method="storeEppKeyProcess"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+			 -->
+			<to uri="direct:hsmC047"/>
+			<bean ref="RklNewProcessor" method="responseHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+			 -->
+			<to uri="direct:hsmD106"/>
+			<bean ref="RklNewProcessor" method="responseHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="insertTerminalKeyProcess"/>
+			<to uri="mybatis:insertMasterKey?statementType=Insert"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+			 -->
+			<to uri="direct:hsmC049"/>
+			<bean ref="RklNewProcessor" method="responseHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="requestHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<!-- <to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+			 -->
+			<to uri="direct:hsmC046"/>
+			<bean ref="RklNewProcessor" method="responseHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			
+			<bean ref="RklNewProcessor" method="responseRklProcess"/>			
+		</route>
+		
+        <route id="rqk">
+			<from uri="restlet:/rqk/?restletMethods=POST"/>
+			
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="RqkNewProcessor" method="responseError"/>
+			</onException>
+    
+			<process ref="header-verification"/>
+			<bean ref="RqkNewProcessor" method="getTerminalIdProcess"/>
+			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
+			<bean ref="RqkNewProcessor" method="storeMasterkeyProcess"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD107Process(*,'HSM_KEYTYPE_PIN')"/>
+			<to uri="direct:hsmD107"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD107Process(*,'HSM_KEYTYPE_PIN')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD104Process(*,'HSM_KEYTYPE_PIN')"/>
+			<to uri="direct:hsmD104"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD104Process(*,'HSM_KEYTYPE_PIN')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD107Process(*,'HSM_KEYTYPE_MAC')"/>
+			<to uri="direct:hsmD107"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD107Process(*,'HSM_KEYTYPE_MAC')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD104Process(*,'HSM_KEYTYPE_MAC')"/>
+			<to uri="direct:hsmD104"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD104Process(*,'HSM_KEYTYPE_MAC')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD107Process(*,'HSM_KEYTYPE_TRACE')"/>
+			<to uri="direct:hsmD107"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD107Process(*,'HSM_KEYTYPE_TRACE')"/>
+			
+			<bean ref="RqkNewProcessor" method="requestHsmD104Process(*,'HSM_KEYTYPE_TRACE')"/>
+			<to uri="direct:hsmD104"/>
+			<bean ref="RqkNewProcessor" method="responseHsmD104Process(*,'HSM_KEYTYPE_TRACE')"/>
+			
+			<bean ref="RqkNewProcessor" method="updateTerminalKeyProcess"/>
+			<to uri="mybatis:updateTerminalKey?statementType=Update"/>
+			<bean ref="RqkNewProcessor" method="responseTerminalKeyProcess"/>
+		</route>
+		
+		<route id="hsmD107" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmD107"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<route id="hsmD106" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmD106"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<route id="hsmD104" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmD104"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<route id="hsmC049" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmC049"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<route id="hsmC047" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmC047"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<route id="hsmC046" errorHandlerRef="hsmErrorHandler">
+			<from uri="direct:hsmC046"/>
+			<to uri="mina2:tcp://{{hsm.loacation}}:{{hsm.port}}?timeout={{hsm.timeout}}&amp;disconnect=true&amp;codec=#hsmByteArrayCodec"/>
+		</route>
+		
+		<!-- 
+		<route id="D107_test">
+			<from uri="mina2:tcp://localhost:58107?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RqkNewProcessorTest" method="responseD107"/>
+		</route>
+		<route id="D104_test">
+			<from uri="mina2:tcp://localhost:58104?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="RqkNewProcessorTest" method="responseD104"/>
+		</route>
+		 -->
+    </routeContext>
+
+</beans>
