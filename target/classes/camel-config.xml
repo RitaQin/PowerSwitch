@@ -54,27 +54,15 @@
 		<route id="qt04">
 			<from uri="restlet:/qt04/?restletMethods=POST"/>
 			<process ref="header-verification"/>
-				
-			<bean ref="EsbQt04Process" method="beforeMybatisProcess"/>
-			<to uri="mybatis:getTerminalById?statementType=SelectOne"/>
-			<bean ref="EsbQt04Process" method="afterMybatisProcess"/>
-
 			<bean ref="EsbQt04Process" method="formatProcess"/>
-			<!-- <to uri="mina2:tcp://localhost:12008?textline=true"/>  -->
-			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?textline=true"/>
+			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?codec=#byteArrayCodecFactory"/>
 			<bean ref="EsbQt04Process" method="deformatProcess"/>
 		</route>
-		
-		<!--<route id="qt04Test">
-			<from uri="mina2:tcp://localhost:12008?textline=true"/> 
-			<bean ref="EsbQt04Process" method="testProcess"/> 
-		</route>	 -->
 		
 		<route id="ac51">
 			<from uri="restlet:/ac51/?restletMethods=POST"/>
 			<process ref="header-verification"/>
 			<bean ref="EsbAc51Process" method="formatProcess" />
-			<!-- <to uri="mina2:tcp://localhost:8088?codec=#byteArrayCodecFactory"/> --> 
 			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?codec=#byteArrayCodecFactory"/>
 			<bean ref="EsbAc51Process" method="deformatProcess"/>
 		</route>

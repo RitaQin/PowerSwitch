@@ -10,9 +10,4 @@ public class GeneralUtil {
 		return length; 
 	}
 	
-	public static String generateTcpRequestHeader() {
-		//TODO: 生成tcp请求报文头字符串
-		
-		return null;
-	}
 }

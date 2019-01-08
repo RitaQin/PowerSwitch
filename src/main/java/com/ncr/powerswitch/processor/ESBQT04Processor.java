@@ -9,15 +9,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.ncr.powerswitch.utils.FormatUtil;
+import com.ncr.powerswitch.utils.GeneralUtil;
+import com.ncr.powerswitch.utils.PowerSwitchConstant;
 import com.ncr.powerswitch.utils.XStreamEx;
 
-import com.ncr.powerswitch.dataObject.Terminal;
 import com.ncr.powerswitch.esb.ESB_QT04;
 import com.ncr.powerswitch.esb.model.AppHead;
 import com.ncr.powerswitch.esb.model.Body;
 import com.ncr.powerswitch.esb.model.LocalHead;
 import com.ncr.powerswitch.esb.model.EsbRet;
 import com.ncr.powerswitch.esb.model.SysHead;
+import com.ncr.powerswitch.exception.PowerswitchException;
 import com.ncr.powerswitch.esb.model.EsbService;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
@@ -43,13 +45,27 @@ public class EsbQt04Processor implements Processor {
 		exchange.getProperties().put("traceNumber", requestMap.get("traceNumber"));
 		exchange.getProperties().put("transactionDate", requestMap.get("transactionDate"));
 		exchange.getProperties().put("transactionTime", requestMap.get("transactionTime"));
-		
-		ESB_QT04 testEsbQT04 = new ESB_QT04();
-		String requestString = testEsbQT04.constructRequest(requestMap);		
-		exchange.getOut().setBody(requestString);		
+				
+		ESB_QT04 qt04 = new ESB_QT04();
+		String qt04Text = qt04.constructRequest(requestMap);
+		StringBuffer qt04Buffer = new StringBuffer(); 
+		qt04Buffer.append("000000000000000000000000000000000000000000000000"); //mac key + mac value 000 for testing
+		qt04Buffer.append(qt04Text);
+		String length = GeneralUtil.generatePayloadLength(qt04Buffer.toString());
+		byte[] qt04Bytes = length.concat(qt04Buffer.toString()).getBytes();
+		exchange.getOut().setBody(qt04Bytes);
 	}
 	
 	public void deformatProcess(Exchange exchange) throws Exception{
+		byte[] retBytes = exchange.getIn().getBody(byte[].class);
+		if (retBytes == null) {
+			log.error("ESB return message empty.");			
+			throw new PowerswitchException(PowerSwitchConstant.ESB_RETURNEMPTY,"ESB return message empty.");
+		}
+		String esb_ret = FormatUtil.byteArray2Str(retBytes);
+		log.debug("received msg: " + esb_ret);
+		esb_ret = esb_ret.substring(56);
+		log.debug("esb return is: " + esb_ret);
 		
 		XStreamEx  xstream = new XStreamEx(new DomDriver("utf-8"));
 		xstream.alias("service", EsbService.class);
@@ -58,7 +74,7 @@ public class EsbQt04Processor implements Processor {
 		xstream.alias("APP_HEAD", AppHead.class);
 		xstream.alias("LOCAL_HEAD", LocalHead.class);
 		xstream.alias("BODY", Body.class);
-		EsbService esbMsg = (EsbService) xstream.fromXML(exchange.getIn().getBody(String.class));
+		EsbService esbMsg = (EsbService) xstream.fromXML(esb_ret);
 		
 		Map<String, Object> head = new HashMap<String, Object>(); 
 		
@@ -78,29 +94,6 @@ public class EsbQt04Processor implements Processor {
 		retJsonMap.put("head", head);
 		retJsonMap.put("body", body);
 		exchange.getOut().setBody(FormatUtil.map2Json(retJsonMap));	
-	}
-	
-	public void testProcess(Exchange exchange) throws Exception{		
-		@SuppressWarnings("unchecked")
-		String msg = exchange.getIn().getBody(String.class);		
-		
-		//Map<String, Object> requestMap = FormatUtil.json2Map(msg);
-		String retmsg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><service><SYS_HEAD><ServiceCode>12001000001</ServiceCode><ServiceScene>06</ServiceScene><ConsumerId>10102101</ConsumerId><TargetId></TargetId><ChannelType></ChannelType><OrgConsumerId></OrgConsumerId><ConsumerSeqNo></ConsumerSeqNo><OrgConsumerSeqNo></OrgConsumerSeqNo><TranDate>2018-12-23</TranDate><TranTime></TranTime><ServSeqNo>20223028</ServSeqNo><ReturnStatus>S</ReturnStatus><array><Ret><ReturnCode>000000</ReturnCode><ReturnMsg></ReturnMsg></Ret></array><TerminalCode></TerminalCode><OrgTerminalCode></OrgTerminalCode><ConsumerSvrId></ConsumerSvrId><OrgConsumerSvrId></OrgConsumerSvrId><DestSvrId></DestSvrId><UserLang></UserLang><FileFlag></FileFlag><SrcFilePath></SrcFilePath><SrcFileName></SrcFileName><DestFilePath></DestFilePath><DestFileName></DestFileName></SYS_HEAD><APP_HEAD><TranTellerNo></TranTellerNo><TranBranchId>07705</TranBranchId><TranTellerPassword></TranTellerPassword><TranTellerLevel></TranTellerLevel><TranTellerType></TranTellerType><ApprFlag></ApprFlag><AuthFlag></AuthFlag><array></array><array></array></APP_HEAD><LOCAL_HEAD><TranCode>AC51</TranCode><SendCardPeriod></SendCardPeriod></LOCAL_HEAD><BODY><TxnAmt>0.00</TxnAmt><DbAcgSbjNo>10101       </DbAcgSbjNo><CrAcgSbjNo>21103       </CrAcgSbjNo><TfrOutAcctBal>0.00</TfrOutAcctBal><TfrInAcctBal>0.00</TfrInAcctBal><InfctTxnAmt>3400.00</InfctTxnAmt><AcgBnkNo>03301</AcgBnkNo><ERetStmtNo>2022302820181223</ERetStmtNo><DbCrInst>0770503301</DbCrInst></BODY></service>";
-		
-		
-		//ESB_QT04 testEsbQT04 = new ESB_QT04();	
-		exchange.getOut().setBody(retmsg);		
-	}
-	
-	public void beforeMybatisProcess(Exchange exchange) throws Exception{		
-		Map<String, Object> requestMap =  exchange.getIn().getBody(Map.class);
-		exchange.getProperties().put("channelId", requestMap.get("channelId"));			
-		exchange.getOut().setBody(requestMap.get("terminalId"));		
-	}
-	
-	public void afterMybatisProcess(Exchange exchange) throws Exception{		
-		Terminal terminal =  exchange.getIn().getBody(Terminal.class);			
-		exchange.getOut().setBody(terminal.terminalId);		
 	}
 
 	@Override

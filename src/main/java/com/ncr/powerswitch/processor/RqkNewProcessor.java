@@ -116,17 +116,20 @@ public class RqkNewProcessor {
 		
 		@SuppressWarnings("unchecked")
 		Map<String, String> pinKeySet = (Map<String, String>)exchange.getProperties().get("HSM_KEYTYPE_PIN");
-		terminalKey.setPinKey(pinKeySet.get("keyByTsf"));
+		//terminalKey.setPinKey(pinKeySet.get("keyByTsf"));
+		terminalKey.setTraceKey(pinKeySet.get("keyByHsm"));
 		terminalKey.setPinkeyHsm(pinKeySet.get("keyByHost"));
 		
 		@SuppressWarnings("unchecked")
 		Map<String, String> traceKeySet = (Map<String, String>)exchange.getProperties().get("HSM_KEYTYPE_TRACE");
-		terminalKey.setTraceKey(traceKeySet.get("keyByTsf"));
+		//terminalKey.setTraceKey(traceKeySet.get("keyByTsf"));
+		terminalKey.setTraceKey(traceKeySet.get("keyByHsm"));
 		terminalKey.setTraceKeyHsm(traceKeySet.get("keyByHost"));
 		
 		@SuppressWarnings("unchecked")
 		Map<String, String> macKeySet = (Map<String, String>)exchange.getProperties().get("HSM_KEYTYPE_MAC");	
-		terminalKey.setMacKey(macKeySet.get("keyByTsf"));
+		//terminalKey.setMacKey(macKeySet.get("keyByTsf"));
+		terminalKey.setTraceKey(macKeySet.get("keyByHsm"));
 		terminalKey.setMacKeyHsm(macKeySet.get("keyByHost"));
 		terminalKey.setKeyIndex("0110");	
 		

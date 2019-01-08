@@ -73,4 +73,7 @@ public class PowerSwitchConstant {
 	
 	//hsm
 	public final static String HSM_ERROR = "H0001"; //transactionTime空
+	
+	//esb
+	public final static String ESB_RETURNEMPTY = "E0001"; //transactionTime空
 }
