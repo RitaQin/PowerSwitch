@@ -7,6 +7,7 @@ import org.apache.camel.Exchange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ncr.powerswitch.dataObject.TerminalKey;
 import com.ncr.powerswitch.esb.ESB_AC51;
 import com.ncr.powerswitch.esb.model.AppHead;
 import com.ncr.powerswitch.esb.model.Body;
@@ -40,13 +41,45 @@ public class EsbAc51Processor implements BaseProcessor {
 
 		ESB_AC51 ac51 = new ESB_AC51();
 		String ac51Text = ac51.constructRequest(requestMap);
-		StringBuffer ac51Buffer = new StringBuffer(); 
+		
+		exchange.setProperty("formattedMessage", ac51Text);
+		exchange.setProperty("macData", ac51Text);
+		exchange.setProperty("mac", "0000000000000000");
+		exchange.setProperty("macDataLen", GeneralUtil.generatePayloadLength(ac51Text));
+		
+		/*StringBuffer ac51Buffer = new StringBuffer(); 
 		ac51Buffer.append("000000000000000000000000000000000000000000000000"); //mac key + mac value 000 for testing
-		ac51Buffer.append(ac51Text);
+		ac51Buffer.append(ac51Text);		
+		
+		String length = GeneralUtil.generatePayloadLength(ac51Buffer.toString());
+		byte[] ac51Bytes = length.concat(ac51Buffer.toString()).getBytes();
+		exchange.getOut().setBody(ac51Bytes);*/
+	}
+	
+	public void appendHeadProcess(Exchange exchange) throws Exception {
+		
+		
+		String formattedMessage = exchange.getProperty("formattedMessage", String.class);
+		String mac = exchange.getProperty("mac",String.class);
+		
+		String macKeyHsm;
+		if (!mac.equals("0000000000000000")){
+			macKeyHsm = exchange.getProperty("terminalKey", TerminalKey.class).getMacKeyHsm();
+		}else{
+			macKeyHsm = "00000000000000000000000000000000";
+		}
+		
+		
+		StringBuffer ac51Buffer = new StringBuffer(); 
+		ac51Buffer.append(macKeyHsm); //mac key + mac value 000 for testing
+		ac51Buffer.append(mac); 
+		ac51Buffer.append(formattedMessage);		
+		
 		String length = GeneralUtil.generatePayloadLength(ac51Buffer.toString());
 		byte[] ac51Bytes = length.concat(ac51Buffer.toString()).getBytes();
 		exchange.getOut().setBody(ac51Bytes);
 	}
+	
 
 	public void deformatProcess(Exchange exchange) throws Exception {
 		byte[] retBytes = exchange.getIn().getBody(byte[].class);
@@ -117,6 +150,7 @@ public class EsbAc51Processor implements BaseProcessor {
 	
 	@Override
 	public void process(Exchange exchange) throws Exception {
+		
 	}
 
 }

@@ -61,8 +61,29 @@
 		
 		<route id="ac51">
 			<from uri="restlet:/ac51/?restletMethods=POST"/>
+			
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="EsbAc51Process" method="responseError"/>
+			</onException>
+			
 			<process ref="header-verification"/>
 			<bean ref="EsbAc51Process" method="formatProcess" />
+			
+			<choice>
+				<when>
+					<simple>${property.macDataLen} > 1300</simple>					
+				</when>
+				<otherwise>
+					<to uri="direct:createMac"/>
+				</otherwise>
+			</choice>
+			
+			<bean ref="EsbAc51Process" method="appendHeadProcess" />
+			
 			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?codec=#byteArrayCodecFactory"/>
 			<bean ref="EsbAc51Process" method="deformatProcess"/>
 		</route>

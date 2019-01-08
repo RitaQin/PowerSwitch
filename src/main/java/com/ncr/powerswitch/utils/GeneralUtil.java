@@ -1,10 +1,12 @@
 package com.ncr.powerswitch.utils;
 
+import java.nio.charset.StandardCharsets;
+
 public class GeneralUtil {
 	
 	public static String generatePayloadLength(String payload) {
-		//计算报文长度  并返回8字节长度字符串 不够8位填充0
-		byte[] payloadBytes = payload.getBytes();
+
+		byte[] payloadBytes = payload.getBytes(StandardCharsets.UTF_8);
 		int requestLen = payloadBytes.length;
 		String length = String.format("%08d", requestLen);
 		return length; 

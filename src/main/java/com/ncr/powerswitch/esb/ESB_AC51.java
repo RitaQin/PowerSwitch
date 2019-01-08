@@ -12,7 +12,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-public class ESB_AC51 extends ESBClient {
+public class ESB_AC51 implements ESBClientIntf {
 
 	public ESB_AC51() {
 		super();
@@ -132,6 +132,12 @@ public class ESB_AC51 extends ESBClient {
 
 	public void setVerifyFields(String[] verifyFields) {
 		this.verifyFields = verifyFields;
+	}
+
+	@Override
+	public boolean verifyResMessage(String msg, String receivedMsg, String[] verifyFields) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
