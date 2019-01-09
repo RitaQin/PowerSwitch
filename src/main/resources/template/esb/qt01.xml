@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+  <SYS_HEAD>
+    <ServiceCode>04002000002</ServiceCode>
+    <ServiceScene>03</ServiceScene>
+    <ConsumerId>${consumerId}</ConsumerId>
+    <ConsumerSeqNo>${consumerSeqNo}</ConsumerSeqNo>
+    <OrgConsumerSeqNo>${orgConsumerSeqNo}</OrgConsumerSeqNo>
+    <TranDate>${tranDate}</TranDate>
+    <TranTime>${tranTime}</TranTime>
+    <FileFlag>0</FileFlag>
+  </SYS_HEAD>
+  <APP_HEAD>
+    <TranTellerNo>${tranTellerNo}</TranTellerNo>
+  </APP_HEAD>
+  <LOCAL_HEAD>
+    <TranCode>QT01</TranCode>
+  </LOCAL_HEAD>
+  <BODY>
+    <BranchId>${branchId}</BranchId>
+    <CnlInd>QT</CnlInd>
+    <VrfyTp>${vrfyTp}</VrfyTp>
+    <IdentNo>${identNo}</IdentNo>
+    <IdentTp>${identTp}</IdentTp>
+    <Pwd>${pwd}</Pwd>
+    <CardNo>${cardNo}</CardNo>
+    <ScdTrackMsg>${scdTrackMsg}</ScdTrackMsg>
+    <CardRdMode>${cardRdMode}</CardRdMode>
+    <wrkSrtKey>${wrkSrtKey}</wrkSrtKey>
+    <TrackSrtKey>${trackSrtKey}</TrackSrtKey>
+    <ThreeTrackMsg>${threeTrackMsg}</ThreeTrackMsg>
+    <IcAuthtnInf>${icAuthtnInf}</IcAuthtnInf>
+    <CardSerlNo>${cardSerlNo}</CardSerlNo>
+    <IcVerfFlg>${icVerfFlg}</IcVerfFlg>
+  </BODY>
+</service>

@@ -52,12 +52,12 @@ public class RqkNewProcessor {
 			log.error(errMsg);
 			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
 		}	
-		exchange.setProperty("TerminalKey", terminalKey);		
+		exchange.setProperty("terminalKey", terminalKey);		
 	}
 	
 	public void requestHsmD107Process(Exchange exchange, String keyType) throws Exception{
 		
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);			
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);
@@ -189,7 +189,7 @@ public class RqkNewProcessor {
 	}
 	
 	public void updateTerminalKeyProcess(Exchange exchange) throws Exception{		
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);		
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);		
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);

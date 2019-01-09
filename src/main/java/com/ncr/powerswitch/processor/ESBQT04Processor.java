@@ -33,7 +33,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 public class EsbQt04Processor implements Processor {
 
 	/**
-	 * Log4j¼ÇÂ¼ÈÕÖ¾µÄ¹¤¾ßÀà
+	 * Log4jï¿½ï¿½Â¼ï¿½ï¿½Ö¾ï¿½Ä¹ï¿½ï¿½ï¿½ï¿½ï¿½
 	 */
 	private final static Log log = LogFactory.getLog(EsbQt04Processor.class);
 	private String errMsg = null;
@@ -64,7 +64,7 @@ public class EsbQt04Processor implements Processor {
 
 		String macKeyHsm = null;
 		if (!mac.equals("0000000000000000")) {
-			TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);
+			TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);
 			if (terminalKey == null) {
 				errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 				log.error(errMsg);

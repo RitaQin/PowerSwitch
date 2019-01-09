@@ -4,17 +4,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.ncr.powerswitch.dataObject.TerminalKey;
-import com.ncr.powerswitch.esb.ESB_QT02;
+import com.ncr.powerswitch.esb.ESB_QT03;
 import com.ncr.powerswitch.esb.model.AppHead;
 import com.ncr.powerswitch.esb.model.EsbRet;
-import com.ncr.powerswitch.esb.model.EsbServiceQt02;
+import com.ncr.powerswitch.esb.model.EsbServiceQt03;
 import com.ncr.powerswitch.esb.model.LocalHead;
-import com.ncr.powerswitch.esb.model.Qt02Body;
+import com.ncr.powerswitch.esb.model.Qt03Body;
 import com.ncr.powerswitch.esb.model.SysHead;
 import com.ncr.powerswitch.exception.PowerswitchException;
 import com.ncr.powerswitch.utils.FormatUtil;
@@ -24,28 +23,21 @@ import com.ncr.powerswitch.utils.PowerSwitchConstant;
 import com.ncr.powerswitch.utils.XStreamEx;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-/**
- * ESB QT02处理
- * 
- * @author rq185015
- *
- */
-
-public class EsbQt02Processor implements Processor {
+public class EsbQt03Processor implements BaseProcessor {
 
 	/**
-	 *Log4j锟斤拷录锟斤拷志锟侥癸拷锟斤拷锟斤拷
+	 *Log4j��¼��־�Ĺ�����
 	 */
-	private final static Log log = LogFactory.getLog(EsbQt02Processor.class);
+	private final static Log log = LogFactory.getLog(EsbQt03Processor.class);
 	private String errMsg = null;
 
 	public void formatProcess(Exchange exchange) throws Exception {
 
-		ESB_QT02 qt02 = new ESB_QT02();
-		String qt02text = qt02.constructRequest(exchange.getProperties());
+		ESB_QT03 qt03 = new ESB_QT03();
+		String qt03text = qt03.constructRequest(exchange.getProperties());
 
-		exchange.setProperty("formattedMessage", qt02text);
-		exchange.setProperty("macData", qt02text);
+		exchange.setProperty("formattedMessage", qt03text);
+		exchange.setProperty("macData", qt03text);
 	}
 
 	public void appendHeadProcess(Exchange exchange) throws Exception {
@@ -83,14 +75,14 @@ public class EsbQt02Processor implements Processor {
 			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
 		}
 
-		StringBuffer qt02Buffer = new StringBuffer();
-		qt02Buffer.append(macKeyHsm); // mac key + mac value 000 for testing
-		qt02Buffer.append(mac);
-		qt02Buffer.append(formattedMessage);
+		StringBuffer qt03Buffer = new StringBuffer();
+		qt03Buffer.append(macKeyHsm); // mac key + mac value 000 for testing
+		qt03Buffer.append(mac);
+		qt03Buffer.append(formattedMessage);
 
-		String length = GeneralUtil.generatePayloadLength(qt02Buffer.toString());
-		byte[] qt02Bytes = length.concat(qt02Buffer.toString()).getBytes();
-		exchange.getOut().setBody(qt02Bytes);
+		String length = GeneralUtil.generatePayloadLength(qt03Buffer.toString());
+		byte[] qt03Bytes = length.concat(qt03Buffer.toString()).getBytes();
+		exchange.getOut().setBody(qt03Bytes);
 	}
 
 	public void deformatProcess(Exchange exchange) throws Exception {
@@ -115,18 +107,18 @@ public class EsbQt02Processor implements Processor {
 		log.debug("esb return is: " + esb_ret);
 
 		XStreamEx  xstream = new XStreamEx(new DomDriver("utf-8"));
-		xstream.alias("service", EsbServiceQt02.class);
+		xstream.alias("service", EsbServiceQt03.class);
 		xstream.alias("SYS_HEAD", SysHead.class);
 		xstream.alias("Ret", EsbRet.class);
 		xstream.alias("APP_HEAD", AppHead.class);
 		xstream.alias("LOCAL_HEAD", LocalHead.class);
-		xstream.alias("BODY", Qt02Body.class);
-		EsbServiceQt02 esbMsg = (EsbServiceQt02) xstream.fromXML(esb_ret);
+		xstream.alias("BODY", Qt03Body.class);
+		EsbServiceQt03 esbMsg = (EsbServiceQt03) xstream.fromXML(esb_ret);
 
 		Map<String, Object> head = new HashMap<String, Object>();
 
 		head.put("channelId", (String) exchange.getProperties().get("channelId"));
-		head.put("transactionCode", "QT02");
+		head.put("transactionCode", "QT03");
 		head.put("terminalId", (String) exchange.getProperties().get("terminalId"));
 		head.put("traceNumber", (String) exchange.getProperties().get("traceNumber"));
 		head.put("transactionDate", (String) exchange.getProperties().get("transactionDate"));
@@ -169,10 +161,11 @@ public class EsbQt02Processor implements Processor {
 
 		exchange.getOut().setBody(FormatUtil.map2Json(retJsonMap));
 	}
-
+	
 	@Override
 	public void process(Exchange exchange) throws Exception {
-
+		// TODO Auto-generated method stub
+		
 	}
 
 }

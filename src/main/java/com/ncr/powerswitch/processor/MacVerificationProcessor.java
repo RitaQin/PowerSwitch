@@ -35,7 +35,7 @@ public class MacVerificationProcessor {
 	
 	public void requestHsmD132Process(Exchange exchange) throws Exception{
 		
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);			
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);
@@ -106,7 +106,7 @@ public class MacVerificationProcessor {
 	}
 	
 	public void requestHsmD134Process(Exchange exchange) throws Exception{		
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);			
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);

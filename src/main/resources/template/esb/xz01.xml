@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <service>
   <SYS_HEAD>
-    <ServiceCode>12003000005</ServiceCode>
-    <ServiceScene>23</ServiceScene>
+    <ServiceCode>12003000037</ServiceCode>
+    <ServiceScene>01</ServiceScene>
     <ConsumerId>${consumerId}</ConsumerId>
     <ConsumerSeqNo>${consumerSeqNo}</ConsumerSeqNo>
-    <OrgConsumerSeqNo>${orgConsumerSeqNo}</OrgConsumerSeqNo>
-    <ServSeqNo>${servSeqNo}</ServSeqNo>
     <TranDate>${tranDate}</TranDate>
     <TranTime>${tranTime}</TranTime>
-    <FileFlag>${fileFlag}</FileFlag>
   </SYS_HEAD>
   <APP_HEAD>
     <TranTellerNo>${tranTellerNo}</TranTellerNo>
   </APP_HEAD>
   <LOCAL_HEAD>
-    <TranCode>QT02</TranCode>
+    <TranCode>XZ01</TranCode>
   </LOCAL_HEAD>
   <BODY>
-  	<CardNo>${cardNo}</CardNo>
+    <OprlTp>${oprlTp}</OprlTp>
+    <LmtLrgKeyVal>${lmtLrgKeyVal}</LmtLrgKeyVal> 
     <BranchId>${branchId}</BranchId>
- 	<CnlInd>${cnlInd}</CnlInd>
- 	<SubAcctNo>${subAcctNo}</SubAcctNo>
- 	<IdentNo>${identNo}</IdentNo>
- 	<IdentTp>${identTp}</IdentTp>
+    <LmtSmlKeyVal>${lmtSmlKeyVal}</LmtSmlKeyVal>
+    <CnlInd>${cnlInd}</CnlInd> 
+    <PdCd>${pdCd}</PdCd>
   </BODY>
 </service>

@@ -129,24 +129,21 @@
 				<bean ref="RqkNewProcessor" method="responseError"/>
 			</onException>
 			
-			<bean ref="MacProcessor" method="putMacDataLenProcess"/>	
-			<bean ref="MacProcessor" method="responseHsmD132BlankProcess"/>		
-			<!-- 
+			<bean ref="MacProcessor" method="putMacDataLenProcess"/>
 			<choice>
 				<when>
 					<simple>${property.macDataLen} > 1300</simple>
-					<bean ref="MacProcessor" method="responseHsmD132BlankProcess"/>				
+					<bean ref="MacProcessor" method="responseHsmD132BlankProcess"/>
 				</when>
 				<otherwise>
 					<bean ref="NormalProcessor" method="getTerminalIdProcess"/>
 					<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
 					<bean ref="NormalProcessor" method="putTerminalKeyProcess"/>
-					
 					<bean ref="MacProcessor" method="requestHsmD132Process"/>
 					<to uri="direct:hsmD132"/>
 					<bean ref="MacProcessor" method="responseHsmD132Process"/>	
 				</otherwise>
-			</choice>	-->	
+			</choice>
 		</route>  
 		
 		<route id="verifyMac">

@@ -170,11 +170,11 @@ public class RklNewProcessor  {
 			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
 		}		
 		
-		exchange.getProperties().put("TerminalKey", terminalKey);	
+		exchange.getProperties().put("terminalKey", terminalKey);	
 	}	
 	
 	public void insertTerminalKeyProcess(Exchange exchange) throws Exception{	
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);		
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);		
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);
@@ -184,7 +184,7 @@ public class RklNewProcessor  {
 	}
 	
 	public void requestHsmC049Process(Exchange exchange) throws Exception{		
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);			
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);
@@ -241,7 +241,7 @@ public class RklNewProcessor  {
 	}	
 	
 	public void requestHsmC046Process(Exchange exchange) throws Exception{		
-		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		TerminalKey terminalKey = exchange.getProperty("terminalKey", TerminalKey.class);			
 		if (terminalKey==null){
 			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
 			log.error(errMsg);
@@ -327,7 +327,7 @@ public class RklNewProcessor  {
 		Map<String, Object> body = new HashMap<String, Object>();
 		body.put("MasterKeyCypher", exchange.getProperty("encryptedMk", String.class));
 		body.put("MasterKeyCypherSign",exchange.getProperty("encryptSign", String.class));
-		body.put("MasterKeyCheckCode", exchange.getProperty("TerminalKey",TerminalKey.class).getMasterKeyCheck());
+		body.put("MasterKeyCheckCode", exchange.getProperty("terminalKey",TerminalKey.class).getMasterKeyCheck());
 		body.put("BankPublicKey", exchange.getProperty("EppKey",EppKey.class).getBankPK());
 		body.put("BankPublicKeySign", exchange.getProperty("EppKey",EppKey.class).getBankPkSignature());
 		

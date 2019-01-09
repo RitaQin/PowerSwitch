@@ -6,29 +6,76 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("SYS_HEAD")
 public class SysHead {
+	@XStreamAlias("ServiceCode")
 	private String ServiceCode;
+	
+	@XStreamAlias("ServiceScene")
 	private String ServiceScene;
+	
+	@XStreamAlias("ConsumerId")
 	private String ConsumerId;
+	
+	@XStreamAlias("TargetId")
 	private String TargetId;
+	
+	@XStreamAlias("ChannelType")
 	private String ChannelType;
+	
+	@XStreamAlias("OrgConsumerId")
 	private String OrgConsumerId;
+	
+	@XStreamAlias("ConsumerSeqNo")
 	private String ConsumerSeqNo;
+	
+	@XStreamAlias("OrgConsumerSeqNo")
 	private String OrgConsumerSeqNo;
+	
+	@XStreamAlias("TranDate")
 	private String TranDate;
+	
+	@XStreamAlias("TranTime")
 	private String TranTime;
+	
+	@XStreamAlias("ServSeqNo")
 	private String ServSeqNo;
+	
+	@XStreamAlias("ReturnStatus")
 	private String ReturnStatus;
+	
+	@XStreamAlias("array")
 	private List<EsbRet> array; 
+	
+	@XStreamAlias("TerminalCode")
 	private String TerminalCode;
+	
+	@XStreamAlias("OrgTerminalCode")
 	private String OrgTerminalCode;
+	
+	@XStreamAlias("ConsumerSvrId")
 	private String ConsumerSvrId;
+	
+	@XStreamAlias("OrgConsumerSvrId")
 	private String OrgConsumerSvrId;
+	
+	@XStreamAlias("DestSvrId")
 	private String DestSvrId;
+	
+	@XStreamAlias("UserLang")
 	private String UserLang;
+	
+	@XStreamAlias("FileFlag")
 	private String FileFlag;
+	
+	@XStreamAlias("SrcFilePath")
 	private String SrcFilePath;
+	
+	@XStreamAlias("SrcFileName")
 	private String SrcFileName;
+	
+	@XStreamAlias("DestFilePath")
 	private String DestFilePath;
+	
+	@XStreamAlias("DestFileName")
 	private String DestFileName;
 	/**
 	 * @return the serviceCode
