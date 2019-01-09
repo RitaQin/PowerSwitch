@@ -1,13 +1,29 @@
 package com.ncr.powerswitch.esb.model;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("APP_HEAD")
 public class AppHead {
 	
+	@XStreamAlias("TranTellerNo")
 	private String TranTellerNo;
+	
+	@XStreamAlias("TranBranchId")
 	private String TranBranchId;
+	
+	@XStreamAlias("TranTellerPassword")
 	private String TranTellerPassword;
+	
+	@XStreamAlias("TranTellerLevel")
 	private String TranTellerLevel;
+	
+	@XStreamAlias("TranTellerType")
 	private String TranTellerType;
+	
+	@XStreamAlias("ApprFlag")
 	private String ApprFlag;
+	
+	@XStreamAlias("AuthFlag")
 	private String AuthFlag;
 	
 	/**

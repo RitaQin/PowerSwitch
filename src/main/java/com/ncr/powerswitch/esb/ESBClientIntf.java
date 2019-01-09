@@ -10,7 +10,7 @@ public interface ESBClientIntf {
 	 * @param ������Ϣmap
 	 * @return xml����
 	 */
-	String constructRequest(Map<String, String> requestMap);
+	String constructRequest(Map<String, Object> requestMap);
 	
 	/**
 	 * ��֤��esb���صı���

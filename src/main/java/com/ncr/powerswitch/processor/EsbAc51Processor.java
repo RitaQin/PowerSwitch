@@ -18,6 +18,7 @@ import com.ncr.powerswitch.esb.model.EsbService;
 import com.ncr.powerswitch.exception.PowerswitchException;
 import com.ncr.powerswitch.utils.FormatUtil;
 import com.ncr.powerswitch.utils.GeneralUtil;
+import com.ncr.powerswitch.utils.LogUtil;
 import com.ncr.powerswitch.utils.PowerSwitchConstant;
 import com.ncr.powerswitch.utils.XStreamEx;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -28,47 +29,51 @@ public class EsbAc51Processor implements BaseProcessor {
 	 * Log4j记录日志的工具类
 	 */
 	private final static Log log = LogFactory.getLog(EsbAc51Processor.class);
+	private String errMsg = null;
 
 	public void formatProcess(Exchange exchange) throws Exception {
-		@SuppressWarnings("unchecked")
-		Map<String, String> requestMap = exchange.getIn().getBody(Map.class);
-		// log.info("QT04 PROCESSING : request msg: " + msg);
-		exchange.getProperties().put("channelId", requestMap.get("channelId"));
-		exchange.getProperties().put("terminalId", requestMap.get("terminalId"));
-		exchange.getProperties().put("traceNumber", requestMap.get("traceNumber"));
-		exchange.getProperties().put("transactionDate", requestMap.get("transactionDate"));
-		exchange.getProperties().put("transactionTime", requestMap.get("transactionTime"));
-
+		
 		ESB_AC51 ac51 = new ESB_AC51();
-		String ac51Text = ac51.constructRequest(requestMap);
+		String ac51Text = ac51.constructRequest(exchange.getProperties());
 		
 		exchange.setProperty("formattedMessage", ac51Text);
 		exchange.setProperty("macData", ac51Text);
-		exchange.setProperty("mac", "0000000000000000");
-		exchange.setProperty("macDataLen", GeneralUtil.generatePayloadLength(ac51Text));
-		
-		/*StringBuffer ac51Buffer = new StringBuffer(); 
-		ac51Buffer.append("000000000000000000000000000000000000000000000000"); //mac key + mac value 000 for testing
-		ac51Buffer.append(ac51Text);		
-		
-		String length = GeneralUtil.generatePayloadLength(ac51Buffer.toString());
-		byte[] ac51Bytes = length.concat(ac51Buffer.toString()).getBytes();
-		exchange.getOut().setBody(ac51Bytes);*/
 	}
 	
 	public void appendHeadProcess(Exchange exchange) throws Exception {
 		
-		
 		String formattedMessage = exchange.getProperty("formattedMessage", String.class);
-		String mac = exchange.getProperty("mac",String.class);
+		if (formattedMessage==null || formattedMessage.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "formattedMessage is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
 		
-		String macKeyHsm;
-		if (!mac.equals("0000000000000000")){
-			macKeyHsm = exchange.getProperty("terminalKey", TerminalKey.class).getMacKeyHsm();
+		String mac = exchange.getProperty("mac",String.class);
+		if (mac==null || mac.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "mac is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}	
+		
+		String macKeyHsm = null;
+		if (!mac.equals("0000000000000000")){			
+			TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+			if (terminalKey==null){
+				errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
+				log.error(errMsg);
+				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+			}			
+			macKeyHsm = terminalKey.getMacKeyHsm();			
 		}else{
 			macKeyHsm = "00000000000000000000000000000000";
 		}
 		
+		if (macKeyHsm==null || macKeyHsm.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "mac is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
 		
 		StringBuffer ac51Buffer = new StringBuffer(); 
 		ac51Buffer.append(macKeyHsm); //mac key + mac value 000 for testing
@@ -83,13 +88,22 @@ public class EsbAc51Processor implements BaseProcessor {
 
 	public void deformatProcess(Exchange exchange) throws Exception {
 		byte[] retBytes = exchange.getIn().getBody(byte[].class);
-		if (retBytes == null) {
-			log.error("ESB return message empty.");			
-			throw new PowerswitchException(PowerSwitchConstant.ESB_RETURNEMPTY,"ESB return message empty.");
+		if (retBytes==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "response byte[] is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
 		}
+		
 		String esb_ret = FormatUtil.byteArray2Str(retBytes);
+		if (esb_ret==null||esb_ret.isEmpty()||esb_ret.length()<56){
+			errMsg = LogUtil.getClassMethodName() + ":" + "return error and esb_ret:" + esb_ret;
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
 		log.debug("received msg: " + esb_ret);		
 		esb_ret = esb_ret.substring(56);
+		//esb_ret = esb_ret.replace("<BODY>", "<BODY class='com.ncr.powerswitch.esb.model.Body'>"); // bind the body instance 
 		log.debug("esb return is: " + esb_ret);
 		
 		XStreamEx  xstream = new XStreamEx(new DomDriver("utf-8"));

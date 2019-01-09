@@ -2,6 +2,9 @@ package com.ncr.powerswitch.esb.model;
 
 import java.util.List;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("SYS_HEAD")
 public class SysHead {
 	private String ServiceCode;
 	private String ServiceScene;

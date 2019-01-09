@@ -1,15 +1,35 @@
 package com.ncr.powerswitch.esb.model;
 
-public class Body {
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("BODY")
+public class Body implements BodyIntf {
 	
+	@XStreamAlias("TxnAmt")
 	private String TxnAmt;
+	
+	@XStreamAlias("DbAcgSbjNo")
 	private String DbAcgSbjNo;
+	
+	@XStreamAlias("CrAcgSbjNo")
 	private String CrAcgSbjNo;
+	
+	@XStreamAlias("TfrOutAcctBal")
 	private String TfrOutAcctBal;
+	
+	@XStreamAlias("TfrInAcctBal")
 	private String TfrInAcctBal;
+	
+	@XStreamAlias("InfctTxnAmt")
 	private String InfctTxnAmt;
+	
+	@XStreamAlias("AcgBnkNo")
 	private String AcgBnkNo;
+	
+	@XStreamAlias("ERetStmtNo")
 	private String ERetStmtNo;
+	
+	@XStreamAlias("DbCrInst")
 	private String DbCrInst;
 	/**
 	 * @return the txnAmt

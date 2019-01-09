@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.ncr.powerswitch.dataObject.EppKey;
 import com.ncr.powerswitch.dataObject.TerminalKey;
@@ -13,178 +15,304 @@ import com.ncr.powerswitch.hsm.HSMCommand_C047;
 import com.ncr.powerswitch.hsm.HSMCommand_C049;
 import com.ncr.powerswitch.hsm.HSMCommand_D106;
 import com.ncr.powerswitch.utils.FormatUtil;
+import com.ncr.powerswitch.utils.LogUtil;
 import com.ncr.powerswitch.utils.PowerSwitchConstant;
 import com.ncr.powerswitch.utils.ResponseCode;
 import com.ncr.powerswitch.utils.StringUtil;
 
 public class RklNewProcessor  {
 	
-	public void getTerminalIdProcess(Exchange exchange) throws Exception{
-		Map<String, Object> requestMap =  exchange.getIn().getBody(Map.class);
-		exchange.getProperties().putAll(requestMap);
-		exchange.getOut().setBody(exchange.getProperties().get("terminalId"));
+	private final static Log log = LogFactory.getLog(RklNewProcessor.class);
+	private String errMsg = null;
+	
+	public void requestVerificationProcess(Exchange exchange) throws Exception{		
+		String eppPublicKey =  exchange.getProperty("eppPublicKey",String.class);
+		if (eppPublicKey==null || eppPublicKey.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "eppPublicKey is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String eppPublicKeySign = exchange.getProperty("eppPublicKeySign",String.class);
+		if (eppPublicKeySign==null || eppPublicKeySign.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "eppPublicKeySign is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}		
+	}
+	
+	public void getTerminalIdProcess(Exchange exchange) throws Exception{		
+		String terminalID = exchange.getProperty("terminalId",String.class);
+		if (terminalID==null || terminalID.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "terminalID is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}		
+		exchange.getOut().setBody(terminalID);
 	}
 	
 	public void storeEppKeyProcess(Exchange exchange) throws Exception{
-		EppKey eppKey =  exchange.getIn().getBody(EppKey.class);
+		EppKey eppKey = exchange.getIn().getBody(EppKey.class);		
+		if (eppKey==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "eppKey is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
+		}		
 		exchange.getProperties().put("EppKey", eppKey);
 	}
 	
-	public void requestHsmC047Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
+	public void requestHsmC047Process(Exchange exchange) throws Exception{		
+		EppKey eppKey = exchange.getProperty("EppKey", EppKey.class);
+		
+		if (eppKey==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "eppKey is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
+		}
+		
+		String vendorKey = eppKey.getManupk();
+		
+		if (vendorKey==null || vendorKey.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "vendorKey is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
+		}
+		
 		Map<String, String> inputMap = new HashMap<String, String>();
-		//EppKey eppKey 
-		String vendorKey = exchange.getProperty("EppKey", EppKey.class).getManupk();//eppInfo.getManupk();
 		inputMap.put("MANUPK", vendorKey);
 		inputMap.put("MANUPKLENGTH", Integer.toString(vendorKey.length()));
-		inputMap.put("strEppPublicKey", exchange.getProperty("eppPublicKey").toString());
-		inputMap.put("strEppPublicKeySign", exchange.getProperty("eppPublicKeySign").toString());
-		System.out.println("Starting command C047");
+		inputMap.put("strEppPublicKey", exchange.getProperty("eppPublicKey",String.class));
+		inputMap.put("strEppPublicKeySign", exchange.getProperty("eppPublicKeySign",String.class));
 		
 		HSMCommand_C047 c047 = new HSMCommand_C047(inputMap);
 		String c047msg = c047.packageInputField();
-		System.out.println("c047 message: " + c047msg + " Starting command C047");
+		log.debug("c047 message: " + c047msg + " Starting command C047");
 		byte[] bytelst = StringUtil.ASCII_To_BCD(c047msg.getBytes(), c047msg.length());		
 		exchange.getOut().setBody(bytelst);
 	}	
 	
-	public void responseHsmC047Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		byte[] bytes = exchange.getIn().getBody(byte[].class);;
-		String c047Res = StringUtil.bcd2Str(bytes, bytes.length);		
-		System.out.println("verifying C047 Return " + c047Res);
-		if (c047Res != null) {
-			if (c047Res.length() == 20 && c047Res.substring(0, 2).equals("41")
-					&& c047Res.substring(18, 20).equals("00")) {
-				System.out.println("C047验证通过" + c047Res);
-			} else {
-				exchange.getOut().setBody("C047 未通过验证 " + c047Res);
-				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C047 return error, " + c047Res);
-			}
-		} else {
-			exchange.getOut().setBody("C047 未返回随机密钥");
-			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C047 return null.");
+	public void responseHsmC047Process(Exchange exchange) throws Exception{		
+		
+		byte[] bytes = exchange.getIn().getBody(byte[].class);
+		
+		if (bytes==null){
+			errMsg=LogUtil.getClassMethodName() + ":" + "response byte[] is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
 		}
+		
+		String c047Res = StringUtil.bcd2Str(bytes, bytes.length);		
+		
+		if (c047Res==null||c047Res.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "response string is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		
+		if (c047Res.length() == 20 && c047Res.substring(0, 2).equals("41")
+				&& c047Res.substring(18, 20).equals("00")) {
+			log.debug("C047 verified");
+		} else {
+			errMsg = LogUtil.getClassMethodName() + ":" + "failed and c047Res:" + c047Res;
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
+		}
+		
 	}	
 	
-	public void requestHsmD106Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		System.out.println("Starting command D106");
+	public void requestHsmD106Process(Exchange exchange) throws Exception{
+		//System.out.println("Starting command D106");
 		HSMCommand_D106 d106 = new HSMCommand_D106();
 		String d106msg = d106.packageInputField();
-		System.out.println("D106 message: " + d106msg + " Starting command D106");
+		//System.out.println("D106 message: " + d106msg + " Starting command D106");
+		log.debug("D106 message: " + d106msg + " Starting command D106");
 		byte[] bytelst = StringUtil.ASCII_To_BCD(d106msg.getBytes(), d106msg.length());		
 		exchange.getOut().setBody(bytelst);		
 	}	
-	
-	
-	public void responseHsmD106Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		byte[] bytes = exchange.getIn().getBody(byte[].class);;
-		String d106Res = StringUtil.bcd2Str(bytes, bytes.length);		
-		System.out.println("verifying D106 Return " + d106Res);
 		
-		TerminalKey terminalKey = new TerminalKey();			
-		terminalKey.setTerminalId(exchange.getProperty("terminalId",String.class));
+	public void responseHsmD106Process(Exchange exchange) throws Exception{
+		byte[] bytes = exchange.getIn().getBody(byte[].class);
+		if (bytes==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "response byte[] is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		String d106Res = StringUtil.bcd2Str(bytes, bytes.length);		
+		//System.out.println("verifying D106 Return " + d106Res);
+		if (d106Res == null || d106Res.isEmpty()) {
+			errMsg = LogUtil.getClassName()+"-"+LogUtil.getMethodName()+":"+"d106Res is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		TerminalKey terminalKey = new TerminalKey();
+		String terminalID = exchange.getProperty("terminalId",String.class);
+		if (terminalID==null || terminalID.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "terminalID is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}		
+		terminalKey.setTerminalId(terminalID);
 		
 		String masterKey = null;
-		String checkCode = null;
-		if (d106Res != null) {
-			if (d106Res.length() == 52 && d106Res.substring(0, 2).equals("41")) {
-				masterKey = d106Res.substring(4, 36);
-				System.out.println("Master Key is " + masterKey);
-				terminalKey.setMasterKey(masterKey);
-				checkCode = d106Res.substring(36, 52);
-				terminalKey.setMasterKeyCheck(checkCode);
-			} else {
-				exchange.getOut().setBody("D106格式未通过验证  " + d106Res);
-				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"D106 return error, " + d106Res);
-			}
+		String checkCode = null;		
+		if (d106Res.length() == 52 && d106Res.substring(0, 2).equals("41")) {
+			masterKey = d106Res.substring(4, 36);
+			//System.out.println("Master Key is " + masterKey);
+			//log.debug("Master Key is " + masterKey);
+			terminalKey.setMasterKey(masterKey);
+			checkCode = d106Res.substring(36, 52);
+			terminalKey.setMasterKeyCheck(checkCode);
 		} else {
-			exchange.getOut().setBody("D106 未返回随机密钥");
-			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"D106 return null.");
-		}
+			errMsg = LogUtil.getClassMethodName() + ":" + "return error and d106Res:" + d106Res ;
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}		
 		
 		exchange.getProperties().put("TerminalKey", terminalKey);	
 	}	
 	
 	public void insertTerminalKeyProcess(Exchange exchange) throws Exception{	
-		TerminalKey terminalKey = (TerminalKey)exchange.getProperties().get("TerminalKey");		
+		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);		
+		if (terminalKey==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}		
 		exchange.getOut().setBody(terminalKey);
 	}
 	
-	public void requestHsmC049Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		Map<String, String> inputMap = new HashMap<String, String>();		
+	public void requestHsmC049Process(Exchange exchange) throws Exception{		
+		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		if (terminalKey==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
 		
-		TerminalKey terminalKey = (TerminalKey)exchange.getProperties().get("TerminalKey");			
+		String masterKey = terminalKey.getMasterKey();
+		if (masterKey==null||masterKey.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "masterKey is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
 		
-		System.out.println("Starting Command C049");
-		inputMap.put("KEY_TEXT", terminalKey.getMasterKey());
+		Map<String, String> inputMap = new HashMap<String, String>();	
+		//System.out.println("Starting Command C049");
+		inputMap.put("KEY_TEXT", masterKey);
 		inputMap.put("userReservedStr", "0000000000000000");
 		inputMap.put("strEppPublicKey", exchange.getProperty("eppPublicKey", String.class));
 		HSMCommand_C049 c049 = new HSMCommand_C049(inputMap);
 		String c049Msg = c049.packageInputField();
 		
-		System.out.println("C049 message: " + c049Msg + " Starting command C049");
+		//System.out.println("C049 message: " + c049Msg + " Starting command C049");
+		log.debug("C049 message: " + c049Msg + " Starting command C049");
 		byte[] bytelst = StringUtil.ASCII_To_BCD(c049Msg.getBytes(), c049Msg.length());		
 		exchange.getOut().setBody(bytelst);		
 	}	
 	
-	public void responseHsmC049Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		byte[] bytes = exchange.getIn().getBody(byte[].class);;
-		String c049Res = StringUtil.bcd2Str(bytes, bytes.length);		
-		System.out.println("verifying C049 Return " + c049Res);
-		
-		String encryptedMk = null;
-		if (c049Res != null) {
-			if (c049Res.substring(0, 2).equals("41")) {
-				encryptedMk = c049Res.substring(22, c049Res.length());
-				System.out.println("C049转加密文： " + encryptedMk);
-			} else {
-				System.out.println("C049 not verified  " + c049Res);
-				throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C049 return error, " + c049Res);
-			}
-		} else {
-			System.out.println("C049 returns null");
-			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C049 return null");
+	public void responseHsmC049Process(Exchange exchange) throws Exception{
+		byte[] bytes = exchange.getIn().getBody(byte[].class);
+		if (bytes==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "response byte[] is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
 		}
+		String c049Res = StringUtil.bcd2Str(bytes, bytes.length);		
+		//System.out.println("verifying C049 Return " + c049Res);
+		if (c049Res == null || c049Res.isEmpty()) {
+			errMsg = LogUtil.getClassName()+"-"+LogUtil.getMethodName()+":"+"c049Res is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String encryptedMk = null;		
+		if (c049Res.length() >= 23 || c049Res.substring(0, 2).equals("41")) {
+			encryptedMk = c049Res.substring(22, c049Res.length());
+			//System.out.println("C049转加密文： " + encryptedMk);
+		} else {
+			errMsg = LogUtil.getClassName()+"-"+LogUtil.getMethodName()+":"+"return error and c049Res:" + c049Res;
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}		
 		
 		exchange.getProperties().put("encryptedMk", encryptedMk);	
 	}	
 	
-	public void requestHsmC046Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		Map<String, String> inputMap = new HashMap<String, String>();		
+	public void requestHsmC046Process(Exchange exchange) throws Exception{		
+		TerminalKey terminalKey = exchange.getProperty("TerminalKey", TerminalKey.class);			
+		if (terminalKey==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "terminalKey is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
 		
-		TerminalKey terminalKey = (TerminalKey)exchange.getProperties().get("TerminalKey");			
+		EppKey eppKey = exchange.getProperty("EppKey", EppKey.class);		
+		if (eppKey==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "eppKey is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,errMsg);
+		}
 		
-		System.out.println("Starting Command C046");
-		String sk = exchange.getProperty("EppKey", EppKey.class).getSk();
+		//System.out.println("Starting Command C046");
+		String sk = eppKey.getSk();	
+		if (sk==null||sk.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "sk is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String encryptedMk = exchange.getProperty("encryptedMk", String.class);
+		if (encryptedMk==null||encryptedMk.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "encryptedMk is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		Map<String, String> inputMap = new HashMap<String, String>();	
 		inputMap.put("SK", sk);
 		inputMap.put("userReservedStr", "0000000000000000");
-		inputMap.put("encryption", exchange.getProperty("encryptedMk", String.class));
+		inputMap.put("encryption", encryptedMk);
 		
 		HSMCommand_C046 c046 = new HSMCommand_C046(inputMap);
 		String c046Msg = c046.packageInputField();
 		
-		System.out.println("C046 message: " + c046Msg + " Starting command C046");
+		//System.out.println("C046 message: " + c046Msg + " Starting command C046");
+		log.debug("C046 message: " + c046Msg + " Starting command C046");
 		byte[] bytelst = StringUtil.ASCII_To_BCD(c046Msg.getBytes(), c046Msg.length());		
 		exchange.getOut().setBody(bytelst);		
 		
 	}
 	
-	public void responseHsmC046Process(Exchange exchange, String hsmIp, String hsmPort) throws Exception{
-		byte[] bytes = exchange.getIn().getBody(byte[].class);;
-		String c046Res = StringUtil.bcd2Str(bytes, bytes.length);		
-		System.out.println("C046 Return " + c046Res);
-					
+	public void responseHsmC046Process(Exchange exchange) throws Exception{
+		byte[] bytes = exchange.getIn().getBody(byte[].class);
+		if (bytes==null){
+			errMsg = LogUtil.getClassMethodName() + ":" + "response byte[] is null";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String c046Res = StringUtil.bcd2Str(bytes, bytes.length);
+		if (c046Res == null || c046Res.isEmpty()) {
+			errMsg = LogUtil.getClassName()+"-"+LogUtil.getMethodName()+":"+"c046Res is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		//System.out.println("C046 Return " + c046Res);					
 		String encryptSign = null;		
-		if (c046Res != null && c046Res.substring(0, 2).equals("41")) {
-			System.out.println("C046 密文簽名： " + c046Res.substring(22, c046Res.length()));
+		if (c046Res.length()>=23 || c046Res.substring(0, 2).equals("41")) {
+			//System.out.println("C046 密文簽名： " + c046Res.substring(22, c046Res.length()));
 			encryptSign =  c046Res.substring(22, c046Res.length());			
 		} else {
-			exchange.getOut().setBody("C046未通過");
-			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR,"C046 return error, " + c046Res);
+			errMsg = LogUtil.getClassName()+"-"+LogUtil.getMethodName()+":"+"return error and c049Res:" + c046Res;
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
 		}
 		
 		exchange.getProperties().put("encryptSign", encryptSign);	
 	}	
-	
 	
 	public void responseRklProcess(Exchange exchange) throws Exception{
 		Map<String, Object> head = new HashMap<String, Object>(); 

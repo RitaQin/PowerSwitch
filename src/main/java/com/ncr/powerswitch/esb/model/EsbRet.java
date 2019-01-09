@@ -1,7 +1,14 @@
 package com.ncr.powerswitch.esb.model;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("Ret")
 public class EsbRet {
+	
+	@XStreamAlias("ReturnCode")
 	private String ReturnCode;
+	
+	@XStreamAlias("ReturnMsg")
 	private String ReturnMsg;
 	
 	public String getReturnCode() {

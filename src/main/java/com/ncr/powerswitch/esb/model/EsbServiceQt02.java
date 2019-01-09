@@ -3,7 +3,7 @@ package com.ncr.powerswitch.esb.model;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("service")
-public class EsbService {
+public class EsbServiceQt02 {
 	
 	@XStreamAlias("SYS_HEAD")
 	private SysHead SYS_HEAD;
@@ -15,7 +15,7 @@ public class EsbService {
 	private LocalHead LOCAL_HEAD;
 	
 	@XStreamAlias("BODY")
-	private Body BODY;
+	private Qt02Body BODY;
 	/**
 	 * @return the sYS_HEAD
 	 */
@@ -55,13 +55,13 @@ public class EsbService {
 	/**
 	 * @return the bODY
 	 */
-	public Body getBODY() {
+	public Qt02Body getBODY() {
 		return BODY;
 	}
 	/**
 	 * @param bODY the bODY to set
 	 */
-	public void setBODY(Body bODY) {
+	public void setBODY(Qt02Body bODY) {
 		BODY = bODY;
 	}	
 }

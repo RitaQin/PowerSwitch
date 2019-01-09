@@ -1,8 +1,14 @@
 package com.ncr.powerswitch.esb.model;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("LOCAL_HEAD")
 public class LocalHead {
 	
+	@XStreamAlias("TranCode")
 	private String TranCode;
+	
+	@XStreamAlias("SendCardPeriod")
 	private String SendCardPeriod;
 	/**
 	 * @return the tranCode

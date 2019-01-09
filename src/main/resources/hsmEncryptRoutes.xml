@@ -1,16 +1,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans classpath:/org/springframework/beans/factory/xml/spring-beans-2.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
-    
     <bean id="NormalProcessor" class="com.ncr.powerswitch.processor.NormalProcessor"/>
     <bean id="MacProcessor" class="com.ncr.powerswitch.processor.MacVerificationProcessor"/>
     
     
     <bean id="RklNewProcessor" class="com.ncr.powerswitch.processor.RklNewProcessor"/>
     <bean id="RqkNewProcessor" class="com.ncr.powerswitch.processor.RqkNewProcessor"/>
-  	<bean id="RqkNewProcessorTest" class="com.ncr.powerswitch.processor.RqkNewProcessorTest"/>
   	
   	<bean id="hsmByteArrayCodec" class="com.ncr.powerswitch.codec.HsmByteArrayCodecFactory" />
 	<!-- <bean id="UtilProcessor" class="com.ncr.powerswitch.processor.UtilProcessor"/> -->
@@ -43,30 +41,32 @@
 				<bean ref="RklNewProcessor" method="responseError"/>
 			</onException>
 			
-			<process ref="header-verification"/>
+			<process ref="header-verification"/>			
+			<bean ref="RklNewProcessor" method="requestVerificationProcess"/>
+			
 			<bean ref="RklNewProcessor" method="getTerminalIdProcess"/>
 			<to uri="mybatis:getEppKeySetByTerminalId?statementType=SelectOne"/>
 			
 			<bean ref="RklNewProcessor" method="storeEppKeyProcess"/>
 			
-			<bean ref="RklNewProcessor" method="requestHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="requestHsmC047Process"/>
 			<to uri="direct:hsmC047"/>
-			<bean ref="RklNewProcessor" method="responseHsmC047Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="responseHsmC047Process"/>
 			
-			<bean ref="RklNewProcessor" method="requestHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="requestHsmD106Process"/>
 			<to uri="direct:hsmD106"/>
-			<bean ref="RklNewProcessor" method="responseHsmD106Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="responseHsmD106Process"/>
 			
 			<bean ref="RklNewProcessor" method="insertTerminalKeyProcess"/>
 			<to uri="mybatis:insertMasterKey?statementType=Insert"/>
 			
-			<bean ref="RklNewProcessor" method="requestHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="requestHsmC049Process"/>
 			<to uri="direct:hsmC049"/>
-			<bean ref="RklNewProcessor" method="responseHsmC049Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="responseHsmC049Process"/>
 			
-			<bean ref="RklNewProcessor" method="requestHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="requestHsmC046Process"/>
 			<to uri="direct:hsmC046"/>
-			<bean ref="RklNewProcessor" method="responseHsmC046Process(*,{{hsm.loacation}},{{hsm.port}})"/>
+			<bean ref="RklNewProcessor" method="responseHsmC046Process"/>
 			
 			<bean ref="RklNewProcessor" method="responseRklProcess"/>			
 		</route>
@@ -83,6 +83,8 @@
 			</onException>
     
 			<process ref="header-verification"/>
+			<bean ref="RqkNewProcessor" method="requestVerificationProcess"/>
+			
 			<bean ref="RqkNewProcessor" method="getTerminalIdProcess"/>
 			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
 			<bean ref="RqkNewProcessor" method="storeMasterkeyProcess"/>
@@ -126,15 +128,26 @@
 				</handled>
 				<bean ref="RqkNewProcessor" method="responseError"/>
 			</onException>
-
-			<bean ref="NormalProcessor" method="getTerminalIdProcess"/>
-			<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
-			<bean ref="NormalProcessor" method="putTerminalKeyProcess"/>
 			
-			<bean ref="MacProcessor" method="requestHsmD132Process"/>
-			<to uri="direct:hsmD132"/>
-			<bean ref="MacProcessor" method="responseHsmD132Process"/>			
-		</route>
+			<bean ref="MacProcessor" method="putMacDataLenProcess"/>	
+			<bean ref="MacProcessor" method="responseHsmD132BlankProcess"/>		
+			<!-- 
+			<choice>
+				<when>
+					<simple>${property.macDataLen} > 1300</simple>
+					<bean ref="MacProcessor" method="responseHsmD132BlankProcess"/>				
+				</when>
+				<otherwise>
+					<bean ref="NormalProcessor" method="getTerminalIdProcess"/>
+					<to uri="mybatis:getTerminalKeyByTerminalId?statementType=SelectOne"/>
+					<bean ref="NormalProcessor" method="putTerminalKeyProcess"/>
+					
+					<bean ref="MacProcessor" method="requestHsmD132Process"/>
+					<to uri="direct:hsmD132"/>
+					<bean ref="MacProcessor" method="responseHsmD132Process"/>	
+				</otherwise>
+			</choice>	-->	
+		</route>  
 		
 		<route id="verifyMac">
 			<from uri="direct:verifyMac"/>

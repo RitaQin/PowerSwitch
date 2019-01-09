@@ -18,7 +18,10 @@ import org.apache.camel.Exchange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ncr.powerswitch.exception.PowerswitchException;
 import com.ncr.powerswitch.utils.FormatUtil;
+import com.ncr.powerswitch.utils.LogUtil;
+import com.ncr.powerswitch.utils.PowerSwitchConstant;
 import com.ncr.powerswitch.utils.ReturnMsgUtil;
 import com.ncr.powerswitch.utils.SnowflakeIdGenerator;
 
@@ -38,8 +41,9 @@ public class RequestHeaderProcessor implements BaseProcessor {
 	public long workerId = 1;
 	/** 数据中心ID(0~31) */
 	public long datacenterId = 1;
-
+	
 	private final static Log log = LogFactory.getLog(RequestHeaderProcessor.class);
+	private String errMsg = null;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -54,75 +58,74 @@ public class RequestHeaderProcessor implements BaseProcessor {
 		Map<String, String> head = (Map<String, String>) jsonMap.get("head"); 
 		@SuppressWarnings("unchecked")
 		Map<String, String> body = (Map<String, String>) jsonMap.get("body");
+		
 		// 开始验证报文头的有效性
-		String channelId = head.get("channelId") == null ? null
-				: head.get("channelId").toString();
-		String transactionCode = head.get("transactionCode") == null ? null
-				: head.get("transactionCode").toString();
-		String terminalId = head.get("terminalId") == null ? null
-				: head.get("terminalId").toString();
-		String traceNumber = head.get("traceNumber") == null ? null
-				: head.get("traceNumber").toString();
-		String transactionDate = head.get("transactionDate") == null ? null
-				: head.get("transactionDate").toString();
-		String transactionTime = head.get("transactionTime") == null ? null
-				: head.get("transactionTime").toString();
-
-		String errorMsg = null;
-
+		String channelId = head.get("channelId");
+		if (channelId==null || channelId.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "channelId is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		String transactionCode = head.get("transactionCode");
+		if (transactionCode==null || transactionCode.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "transactionCode is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String terminalId = head.get("terminalId");
+		if (terminalId==null || terminalId.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "terminalId is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String traceNumber = head.get("traceNumber");
+		if (traceNumber==null || traceNumber.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "traceNumber is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String transactionDate = head.get("transactionDate");
+		if (transactionDate==null || transactionDate.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "transactionDate is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		String transactionTime = head.get("transactionTime");
+		if (transactionTime==null || transactionTime.isEmpty()){
+			errMsg = LogUtil.getClassMethodName() + ":" + "transactionTime is null(empty)";
+			log.error(errMsg);
+			throw new PowerswitchException(PowerSwitchConstant.HSM_ERROR, errMsg);
+		}
+		
+		
+		
+		/*
 		if (channelId == null) {
 			errorMsg = ReturnMsgUtil.generateErrorMessage(CHANNEL_ID_NULL_ERROR,
 					getText(IL8N_RESOURCES_DEFAULT, CHANNEL_ID_NULL_ERROR));
 			exchange.getOut().setBody(errorMsg);
 			return;
 		}
-		if (transactionCode == null) {
-			errorMsg = ReturnMsgUtil.generateErrorMessage(TRANSACTION_CODE_NULL_ERROR,
-					getText(IL8N_RESOURCES_DEFAULT, TRANSACTION_CODE_NULL_ERROR));
-			exchange.getOut().setBody(errorMsg);
-			return;
-		}
-		if (terminalId == null) {
-			errorMsg = ReturnMsgUtil.generateErrorMessage(TERMINAL_ID_NULL_ERROR,
-					getText(IL8N_RESOURCES_DEFAULT, TERMINAL_ID_NULL_ERROR));
-			exchange.getOut().setBody(errorMsg);
-			return;
-		}
-		if (traceNumber == null) {
-			errorMsg = ReturnMsgUtil.generateErrorMessage(TRACE_NUMBER_NULL_ERROR,
-					getText(IL8N_RESOURCES_DEFAULT, TRACE_NUMBER_NULL_ERROR));
-			exchange.getOut().setBody(errorMsg);
-			return;
-		}
-		if (transactionDate == null) {
-			errorMsg = ReturnMsgUtil.generateErrorMessage(TRANSACTION_DATE_NULL_ERROR,
-					getText(IL8N_RESOURCES_DEFAULT, TRANSACTION_DATE_NULL_ERROR));
-			exchange.getOut().setBody(errorMsg);
-			return;
-		}
-		if (transactionTime == null) {
-			errorMsg = ReturnMsgUtil.generateErrorMessage(TRANSACTION_TIME_NULL_ERROR,
-					getText(IL8N_RESOURCES_DEFAULT, TRANSACTION_TIME_NULL_ERROR));
-			exchange.getOut().setBody(errorMsg);
-			return;
-		}
+		*/
 
 		// TODO:验证terminalId
 
 		// 生成唯一的powerswitch流水号
 		SnowflakeIdGenerator generator = new SnowflakeIdGenerator(workerId, datacenterId);
-		long snowId = generator.nextId();
+		long snowId = generator.nextId();		
+		body.put("serialNo", String.valueOf(snowId));
 		
-		Map<String, Object> requestMap = new HashMap<String, Object>();
-		requestMap.putAll(head);
-		if (body != null && body.size() > 0) {
-			requestMap.putAll(body);
+		//把Head和Body中的数据放到exchange.properties里面统一存放
+		if (head != null && head.size() > 0) {
+			exchange.getProperties().putAll(head);
 		}
-
-		//将交易标识放入上下文的header中
-		exchange.getIn().setHeader("TranCode", transactionCode); 
-		exchange.getIn().setHeader("serialNo", snowId);
-		// 校验完毕向后传递
-		exchange.getIn().setBody(requestMap);
+		if (body != null && body.size() > 0) {
+			exchange.getProperties().putAll(body);
+		}	
+		
 	}
 }

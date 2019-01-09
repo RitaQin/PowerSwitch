@@ -28,19 +28,13 @@
     <!-- 测试用 -->
   	<bean id="echo" class="com.ncr.powerswitch.processor.EchoProcessor"/>
   	
-  	<bean id="rklProcess" class="com.ncr.powerswitch.processor.DataKeyProcessor"/>
-  	<bean id="rqkProcess" class="com.ncr.powerswitch.processor.RQKProcessor"/>
-  	
   	<bean id="EsbQt04Process" class="com.ncr.powerswitch.processor.EsbQt04Processor"/>
   	<bean id="EsbAc51Process" class="com.ncr.powerswitch.processor.EsbAc51Processor"/>
-  	
-  	<bean id="RqkProcessorNew" class="com.ncr.powerswitch.processor.RqkProcessorNew"/>
-  	<bean id="RklProcessorNew" class="com.ncr.powerswitch.processor.RklProcessorNew"/>
+  	<bean id="EsbQt02Process" class="com.ncr.powerswitch.processor.EsbQt02Processor"/>
+  
   	
   	<!-- 业务处理 -->
   	<bean id="header-verification" class=" com.ncr.powerswitch.processor.RequestHeaderProcessor"/>
-  	<bean id="rkl" class="com.ncr.powerswitch.processor.RKLProcessor"/>
-  	
   	
 	<camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
 	
@@ -53,15 +47,23 @@
 		
 		<route id="qt04">
 			<from uri="restlet:/qt04/?restletMethods=POST"/>
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="EsbQt04Process" method="responseError"/>
+			</onException>
 			<process ref="header-verification"/>
 			<bean ref="EsbQt04Process" method="formatProcess"/>
-			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?codec=#byteArrayCodecFactory"/>
+			<to uri="direct:createMac"/>
+			<bean ref="EsbQt04Process" method="appendHeadProcess" />
+			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
 			<bean ref="EsbQt04Process" method="deformatProcess"/>
 		</route>
 		
 		<route id="ac51">
 			<from uri="restlet:/ac51/?restletMethods=POST"/>
-			
 			<onException>
 				<exception>java.lang.Exception</exception>
 				<handled>
@@ -69,23 +71,29 @@
 				</handled>
 				<bean ref="EsbAc51Process" method="responseError"/>
 			</onException>
-			
 			<process ref="header-verification"/>
 			<bean ref="EsbAc51Process" method="formatProcess" />
-			
-			<choice>
-				<when>
-					<simple>${property.macDataLen} > 1300</simple>					
-				</when>
-				<otherwise>
-					<to uri="direct:createMac"/>
-				</otherwise>
-			</choice>
-			
+			<to uri="direct:createMac"/>
 			<bean ref="EsbAc51Process" method="appendHeadProcess" />
-			
-			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?codec=#byteArrayCodecFactory"/>
+			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
 			<bean ref="EsbAc51Process" method="deformatProcess"/>
+		</route>
+		
+		<route id="qt02">
+			<from uri="restlet:/qt02/?restletMethods=POST"/>
+			<onException>
+				<exception>java.lang.Exception</exception>
+				<handled>
+					<constant>true</constant>
+				</handled>
+				<bean ref="EsbQt02Process" method="responseError"/>
+			</onException>
+			<process ref="header-verification"/>
+			<bean ref="EsbQt02Process" method="formatProcess" />
+			<to uri="direct:createMac"/>
+			<bean ref="EsbQt02Process" method="appendHeadProcess" />
+			<to uri="mina2:tcp://{{esb.location}}:{{esb.port}}?disconnect=true&amp;codec=#byteArrayCodecFactory"/>
+			<bean ref="EsbQt02Process" method="deformatProcess"/>
 		</route>
 		
 		

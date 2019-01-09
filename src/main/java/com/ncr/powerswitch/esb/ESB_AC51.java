@@ -25,7 +25,7 @@ public class ESB_AC51 implements ESBClientIntf {
 	public String[] verifyFields = null;
 
 	@Override
-	public String constructRequest(Map<String, String> requestValues) {
+	public String constructRequest(Map<String, Object> requestValues) {
 		String templatePath = "/template/esb/"; // template folder
 		String templateFileName = "ac51.xml"; // AC51 template
 		String requestXml = "";
